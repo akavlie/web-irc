@@ -1,29 +1,42 @@
 $(function() {
 
-    window.Message = Backbone.Model.extend({
-        sender: '',
-        channel: '',
-        text: ''
+    // MODELS & COLLECTIONS
+    // ====================
+    var Message = Backbone.Model.extend({
+        defaults: {
+            sender: '',
+            channel: '',
+            text: ''
+        }
     });
 
-    window.Stream = Backbone.Collection.extend({
+    var Channel = Backbone.Model.extend({
+        defaults: {
+            name: ''
+        }
+    });
+
+    var Stream = Backbone.Collection.extend({
         model: Message
         
     });
 
     var stream = new Stream;
 
-    window.MessageView = Backbone.View.extend({
+
+    // VIEWS
+    // =====
+    var MessageView = Backbone.View.extend({
 
     	render: function() {
-           $(this.el).html(this.model.get('text'));
-           return this;
+            var msg = this.model.get('sender') + ': ' + this.model.get('text');
+            $(this.el).html(msg);
+            return this;
     	}
-    	
     });
 
-    window.ChannelView = Backbone.View.extend({
-        el: $('#cont'),
+    var ChannelView = Backbone.View.extend({
+        el: $('.channel'),
 
         initialize: function() {
             // this.render();
@@ -33,7 +46,6 @@ $(function() {
     	add: function(message) {
            var view = new MessageView({model: message});
            $(this.el).append(view.render().el);
-
     	},
 
         render: function() {
@@ -43,10 +55,46 @@ $(function() {
 
     });
 
+    var channel = new ChannelView;
+
+    /*
+    var ChannelListView = Backbone.View.extend({
+        el: $('.channels li'),
+        events: {
+            'click': 'join',
+            'click .close': 'leave'
+        },
+
+        join: function() {
+            console.log('Joining ' + name);
+            socket.emit('join', {name: this.$('span').text()});
+        },
+
+        leave: function() {
+            
+        }
+        
+    });
+    */
+
+    // var channelList = new ChannelListView;
+
+    // TO BE REPLACED by actual Backbone stuff
+    $('.channels li').click(function() {
+        var name = $(this).text();
+        console.log('Joining ' + name);
+        socket.emit('join', {name: name});
+    });
+
+    $('.channels li .close').click(function() {
+        var name = $(this).paren().text();
+        console.log('Leaving ' + name);
+        socket.emit('leave', {name: name})
+    });
+
     // var AppView = Backbone.View.extend({
         
     // });
-    var channel = new ChannelView;
     // var app = new AppView;
 
     var socket = io.connect('http://localhost');

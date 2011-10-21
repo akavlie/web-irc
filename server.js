@@ -33,7 +33,7 @@ server.listen(8337);
 
 // IRC client
 var client = new irc.Client('irc.freenode.net', 'aktest', {
-	channels: ['#jquery', '#debian']
+	channels: ['#jquery']
 });
 
 // Socket.IO
@@ -42,4 +42,9 @@ io.sockets.on('connection', function(socket) {
 		console.log(from, message);
 		socket.emit('message', {from: from, to: to, message: message});
 	});
+
+    socket.on('join', function(data) {
+        client.join(data.name);
+        console.log('Joined ' + data.name)
+    })
 });
