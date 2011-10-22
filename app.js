@@ -11,9 +11,19 @@ $(function() {
     });
 
     var Channel = Backbone.Model.extend({
+        initialize: function() {
+            console.log('Joining ' + this.name);
+            socket.emit('join', {name: this.name});
+        },
+
         defaults: {
             name: ''
         }
+    });
+
+    var ChannelList = Backbone.Collection.extend({
+        model: Channel
+        
     });
 
     var Stream = Backbone.Collection.extend({
@@ -21,7 +31,8 @@ $(function() {
         
     });
 
-    var stream = new Stream;
+    window.channels = new ChannelList;
+    window.stream = new Stream;
 
 
     // VIEWS
@@ -79,11 +90,29 @@ $(function() {
 
     // var channelList = new ChannelListView;
 
+    var AppView = Backbone.View.extend({
+        el: $('#content'),
+        testChannels: $('#sidebar .channels'),
+
+        initialize: function() {
+
+        },
+
+
+        joinChannel: function(name) {
+            channels.create({name: name})
+        }
+
+    });
+
+    var app = new AppView;
+
     // TO BE REPLACED by actual Backbone stuff
     $('.channels li').click(function() {
         var name = $(this).text();
-        console.log('Joining ' + name);
-        socket.emit('join', {name: name});
+        app.joinChannel(name);
+
+        // socket.emit('join', {name: name});
     });
 
     $('.channels li .close').click(function() {
@@ -92,10 +121,6 @@ $(function() {
         socket.emit('leave', {name: name})
     });
 
-    // var AppView = Backbone.View.extend({
-        
-    // });
-    // var app = new AppView;
 
     var socket = io.connect('http://localhost');
 

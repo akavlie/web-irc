@@ -18,8 +18,8 @@ ul {
 #sidebar {
 	float: right;
 }
+
 .channels {
-	display: block;
 	border: 1px solid gray;
 }
 .channels li {
@@ -27,6 +27,14 @@ ul {
 	padding: 3px;
 	margin-bottom: 5px;
 	background: #dedede;
+}
+
+#sidebar .channels {
+    display: block;
+}
+
+header .channels li {
+    display: inline-block;
 }
 
 .channel {
