@@ -28,6 +28,10 @@ ul {
 	margin: 5px;
 	background: #dedede;
 }
+.channels li.active {
+    color: white;
+    background: blue;
+}
 
 #sidebar .channels {
     display: block;
@@ -37,6 +41,6 @@ header .channels li {
     display: inline-block;
 }
 
-.channel {
-	
+.channel-window {
+    border: 1px solid black;
 }

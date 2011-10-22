@@ -15,6 +15,12 @@ $(function() {
         initialize: function() {
             console.log('Joining ' + this.get('name'));
             socket.emit('join', {name: this.get('name')});
+            // this.setActive();
+        },
+
+        setActive: function() {
+            console.log('Setting ' + this.get('name') + ' as the active channel.')
+            // More stuff will go here
         }
     });
 
@@ -47,7 +53,6 @@ $(function() {
         el: $('.channel'),
 
         initialize: function() {
-            // this.render();
             stream.bind('add', this.add, this);
         },
 
@@ -57,7 +62,7 @@ $(function() {
     	},
 
         render: function() {
-            $(this.el).html('<div class="channel"/>');
+            $(this.el).html('<div class="channel-window"/>');
             return this;
         }
 
@@ -67,9 +72,11 @@ $(function() {
         tagName: 'li',
         initialize: function() {
             this.render();
+            this.model.bind('activate', this.setActive, this);
         },
 
         events: {
+            'click': 'setActive',
             'click .close': 'leave'
         },
 
@@ -77,10 +84,18 @@ $(function() {
             
         },
 
+        setActive: function() {
+            console.log('View setting active status');
+            $(this.el).addClass('active')
+                .siblings().removeClass('active');
+        },
+
         render: function() {
             console.log('Rendering channel tab');
             $(this.el).text(this.model.get('name'));
+            return this;
         }
+
         
     });
 
@@ -94,10 +109,10 @@ $(function() {
 
         },
 
-
         addTab: function(channel) {
             var tab = new ChannelTabView({model: channel});
             this.channelList.append(tab.el);
+            tab.setActive();
         },
 
         joinChannel: function(name) {
