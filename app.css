@@ -25,7 +25,7 @@ ul {
 .channels li {
 	cursor: pointer;
 	padding: 3px;
-	margin-bottom: 5px;
+	margin: 5px;
 	background: #dedede;
 }
 

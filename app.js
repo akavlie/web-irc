@@ -11,13 +11,10 @@ $(function() {
     });
 
     var Channel = Backbone.Model.extend({
+        // expected properties: name
         initialize: function() {
-            console.log('Joining ' + this.name);
-            socket.emit('join', {name: this.name});
-        },
-
-        defaults: {
-            name: ''
+            console.log('Joining ' + this.get('name'));
+            socket.emit('join', {name: this.get('name')});
         }
     });
 
@@ -66,53 +63,57 @@ $(function() {
 
     });
 
-    var channel = new ChannelView;
-
-    /*
-    var ChannelListView = Backbone.View.extend({
-        el: $('.channels li'),
-        events: {
-            'click': 'join',
-            'click .close': 'leave'
+    var ChannelTabView = Backbone.View.extend({
+        tagName: 'li',
+        initialize: function() {
+            this.render();
         },
 
-        join: function() {
-            console.log('Joining ' + name);
-            socket.emit('join', {name: this.$('span').text()});
+        events: {
+            'click .close': 'leave'
         },
 
         leave: function() {
             
+        },
+
+        render: function() {
+            console.log('Rendering channel tab');
+            $(this.el).text(this.model.get('name'));
         }
         
     });
-    */
-
-    // var channelList = new ChannelListView;
 
     var AppView = Backbone.View.extend({
         el: $('#content'),
         testChannels: $('#sidebar .channels'),
+        channelList: $('header .channels'),
 
         initialize: function() {
+            channels.bind('add', this.addTab, this);
 
         },
 
 
+        addTab: function(channel) {
+            var tab = new ChannelTabView({model: channel});
+            this.channelList.append(tab.el);
+        },
+
         joinChannel: function(name) {
-            channels.create({name: name})
+            channels.add({name: name});
         }
 
     });
 
-    var app = new AppView;
+    var channel = new ChannelView,
+        app = new AppView;
 
-    // TO BE REPLACED by actual Backbone stuff
+
+    // VERY TEMPORARY -- JUST FOR TESTING
     $('.channels li').click(function() {
         var name = $(this).text();
         app.joinChannel(name);
-
-        // socket.emit('join', {name: name});
     });
 
     $('.channels li .close').click(function() {
