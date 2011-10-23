@@ -41,6 +41,22 @@ header .channels li {
     display: inline-block;
 }
 
-.channel-window {
+.channel {
+    position: relative;
     border: 1px solid black;
+    margin-right: 100px;
+}
+
+.channel .output {
+    border: 1px solid black;
+    min-height: 400px;
+}
+
+#prime-input {
+    position: absolute;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    width: 100%;
+    bottom: 0;
+
 }

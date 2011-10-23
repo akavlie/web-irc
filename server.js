@@ -33,7 +33,7 @@ server.listen(8337);
 
 // IRC client
 var client = new irc.Client('irc.freenode.net', 'aktest', {
-	channels: ['#jquery']
+	channels: []
 });
 
 // Socket.IO

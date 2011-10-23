@@ -3,16 +3,20 @@ $(function() {
     // MODELS & COLLECTIONS
     // ====================
     var Message = Backbone.Model.extend({
-        defaults: {
-            sender: '',
-            channel: '',
-            text: ''
-        }
+        // expected properties:
+        // - sender
+        // - text
+    });
+
+    var Stream = Backbone.Collection.extend({
+        model: Message
     });
 
     var Channel = Backbone.Model.extend({
-        // expected properties: name
+        // expected properties:
+        // - name
         initialize: function() {
+            this.stream = new Stream;
             console.log('Joining ' + this.get('name'));
             socket.emit('join', {name: this.get('name')});
             // this.setActive();
@@ -26,16 +30,9 @@ $(function() {
 
     var ChannelList = Backbone.Collection.extend({
         model: Channel
-        
-    });
-
-    var Stream = Backbone.Collection.extend({
-        model: Message
-        
     });
 
     window.channels = new ChannelList;
-    window.stream = new Stream;
 
 
     // VIEWS
@@ -50,22 +47,26 @@ $(function() {
     });
 
     var ChannelView = Backbone.View.extend({
-        el: $('.channel'),
+        el: $('.channel .output'),
 
         initialize: function() {
-            stream.bind('add', this.add, this);
+            channels.bind('add', this.focus, this);
+            _.bindAll(this);
         },
 
-    	add: function(message) {
+    	addMessage: function(message) {
            var view = new MessageView({model: message});
            $(this.el).append(view.render().el);
     	},
 
-        render: function() {
-            $(this.el).html('<div class="channel-window"/>');
-            return this;
+        focus: function(channel) {
+            console.log('Focusing channel ' + channel.get('name'));
+            $(this.el).empty();
+            channel.stream.each(this.addMessage);
+            // Only the selected channel should send messages
+            channels.each(function(ch) { ch.stream.unbind('add'); });
+            channel.stream.bind('add', this.addMessage, this);
         }
-
     });
 
     var ChannelTabView = Backbone.View.extend({
@@ -88,6 +89,7 @@ $(function() {
             console.log('View setting active status');
             $(this.el).addClass('active')
                 .siblings().removeClass('active');
+            channelWindow.focus(this.model);
         },
 
         render: function() {
@@ -106,7 +108,6 @@ $(function() {
 
         initialize: function() {
             channels.bind('add', this.addTab, this);
-
         },
 
         addTab: function(channel) {
@@ -115,15 +116,17 @@ $(function() {
             tab.setActive();
         },
 
+        addWindow: function(channel) {
+        },
+
         joinChannel: function(name) {
             channels.add({name: name});
         }
 
     });
 
-    var channel = new ChannelView,
+    var channelWindow = new ChannelView,
         app = new AppView;
-
 
     // VERY TEMPORARY -- JUST FOR TESTING
     $('.channels li').click(function() {
@@ -141,8 +144,14 @@ $(function() {
     var socket = io.connect('http://localhost');
 
     socket.on('message', function(obj) {
-        console.log(obj);
-    	stream.add({sender: obj.from, channel: obj.to, text: obj.message});
+        // Look for channel that matches the 'to'
+        // property for the message from the server
+        var channel = channels.detect(function(ch) {
+            return ch.get('name') === obj.to;
+        });
+        if (channel) {
+        	channel.stream.add({sender: obj.from, text: obj.message});
+        }
     });
 
 });
