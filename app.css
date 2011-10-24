@@ -9,10 +9,12 @@ ul {
 }
 
 #content {
-	margin: 10px;
-	padding: 10px;
+	padding: 5px;
 	min-height: 500px;
-	border: 1px solid black;
+}
+
+header {
+    margin-bottom: 5px;
 }
 
 #sidebar {
@@ -20,17 +22,19 @@ ul {
 }
 
 .channels {
-	border: 1px solid gray;
+    margin: 0;
 }
 .channels li {
+    font-size: 14px;
 	cursor: pointer;
-	padding: 3px;
-	margin: 5px;
+	padding: 4px 7px;
+	margin-right: 5px;
 	background: #dedede;
 }
+
 .channels li.active {
     color: white;
-    background: blue;
+    background: #74a8f5;
 }
 
 #sidebar .channels {
@@ -43,20 +47,21 @@ header .channels li {
 
 .channel {
     position: relative;
-    border: 1px solid black;
-    margin-right: 100px;
+    margin-right: 75px;
 }
 
 .channel .output {
     border: 1px solid black;
     min-height: 400px;
+    padding: 5px;
+    margin-bottom: 5px;
 }
 
 #prime-input {
-    position: absolute;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
+    font-size: 15px;
+    position: relative;
     width: 100%;
     bottom: 0;
-
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
