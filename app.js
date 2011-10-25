@@ -35,7 +35,13 @@ $(function() {
     });
 
     var ChannelList = Backbone.Collection.extend({
-        model: Channel
+        model: Channel,
+
+        getByName: function(name) {
+            return this.detect(function(channel) {
+                return channel.get('name') === name;
+            });
+        }
     });
 
     window.channels = new ChannelList;
@@ -134,8 +140,9 @@ $(function() {
         app = new AppView;
     
     // Create the console "channel"
-    window.cons = new Channel({name: 'console'});
-    channelWindow.focus(cons);
+    // window.cons = new Channel({name: 'console'});
+    // channelWindow.focus(cons);
+    app.joinChannel('console');
 
     // VERY TEMPORARY -- JUST FOR TESTING
     $('#sidebar .channels li').click(function() {
@@ -154,9 +161,7 @@ $(function() {
     socket.on('message', function(msg) {
         // Look for channel that matches the 'to'
         // property for the message from the server
-        var channel = channels.detect(function(ch) {
-            return ch.get('name') === msg.to;
-        });
+        channel = channels.getByName(msg.to);
         if (channel) {
         	channel.stream.add({sender: msg.from, text: msg.text});
         }
@@ -164,9 +169,8 @@ $(function() {
 
     socket.on('motd', function(motd) {
         console.log(motd);
-        var lines = motd.split('\n');
-        lines.forEach(function(line) {
-            cons.stream.add({sender: '', text: line})
+        motd.split('\n').forEach(function(line) {
+            channels.getByName('console').stream.add({sender: '', text: line});
         });
     });
 
