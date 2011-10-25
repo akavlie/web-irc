@@ -24,14 +24,21 @@ $(function() {
             // Only join true channels
             if (this.get('name').indexOf('#') == 0) {
                 console.log('Joining ' + this.get('name'));
-                socket.emit('join', {name: this.get('name')});
+                socket.emit('join', this.get('name'));
             }
         },
 
         setActive: function() {
             console.log('Setting ' + this.get('name') + ' as the active channel.')
             // More stuff will go here
+        },
+
+        part: function() {
+            console.log('Leaving ' + this.get('name'));
+            socket.emit('part', this.get('name'));
+            this.destroy();
         }
+
     });
 
     var ChannelList = Backbone.Collection.extend({
@@ -83,17 +90,20 @@ $(function() {
 
     var ChannelTabView = Backbone.View.extend({
         tagName: 'li',
+        tmpl: '<span class="name">{{ text }}</span> <span class="close"></span>',
+
         initialize: function() {
             this.render();
         },
 
         events: {
             'click': 'setActive',
-            'click .close': 'leave'
+            'click .close': 'part'
         },
 
-        leave: function() {
-            
+        part: function() {
+            this.model.part();
+            $(this.el).remove();
         },
 
         setActive: function() {
@@ -105,7 +115,9 @@ $(function() {
 
         render: function() {
             console.log('Rendering channel tab');
-            $(this.el).text(this.model.get('name'));
+            
+            var html = Mustache.to_html(this.tmpl, {text: this.model.get('name')});
+            $(this.el).html(html);
             return this;
         }
 
@@ -152,7 +164,7 @@ $(function() {
         var newHeight = $('html').height() - $('header').outerHeight(true) - 
                         $('#prime-input').outerHeight(true) - 
                         (sel.outerHeight(true) - sel.height()) - 10;
-                        // (10 = #content padding)
+                        // (10 = #content padding; extra 5 prevents jittery resizing)
         sel.height(newHeight);
     } 
 

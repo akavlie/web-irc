@@ -30,8 +30,8 @@ header {
     margin: 0;
 }
 .channels li {
+    cursor: default;
     font-size: 14px;
-	cursor: pointer;
 	padding: 4px 7px;
 	margin-right: 5px;
 	background: #dedede;
@@ -48,6 +48,17 @@ header {
 
 header .channels li {
     display: inline-block;
+}
+header .channels li .name {
+    padding-right: 3px;
+    border-right: 1px solid white;
+}
+header .channels li .close {
+    cursor: pointer;
+    display: inline-block;
+    background: transparent url(images/close.png) no-repeat center center;
+    width: 6px;
+    height: 10px;
 }
 
 .channel {

@@ -15,6 +15,8 @@ function handler(req, res) {
 		type = 'text/javascript';
 	else if (path.substr(-4) === '.css')
 		type = 'text/css';
+    else if (path.substr(-4) === '.png')
+        type = 'image/png';
 	else
 		type = 'text/html';
 
@@ -49,9 +51,14 @@ io.sockets.on('connection', function(socket) {
 		socket.emit('motd', motd);
 	});
 
-    socket.on('join', function(data) {
-        client.join(data.name);
-        console.log('Joined ' + data.name)
+    socket.on('join', function(name) {
+        client.join(name);
+        console.log('Joined ' + name);
+    });
+
+    socket.on('part', function(name) {
+        console.log('Parting ' + name);
+        client.part(name);
     });
 
     socket.on('disconnect', function() {
