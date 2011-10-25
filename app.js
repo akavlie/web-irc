@@ -119,6 +119,7 @@ $(function() {
 
         initialize: function() {
             channels.bind('add', this.addTab, this);
+            this.render();
         },
 
         addTab: function(channel) {
@@ -127,11 +128,15 @@ $(function() {
             tab.setActive();
         },
 
-        addWindow: function(channel) {
-        },
-
         joinChannel: function(name) {
             channels.add({name: name});
+        },
+
+        render: function() {
+            // Dynamically assign height
+            $(window).resize(function() {
+                sizeContent($('.channel .output'));
+            });
         }
 
     });
@@ -140,9 +145,18 @@ $(function() {
         app = new AppView;
     
     // Create the console "channel"
-    // window.cons = new Channel({name: 'console'});
-    // channelWindow.focus(cons);
     app.joinChannel('console');
+
+    // Set output window to full height, minus other elements
+    function sizeContent(sel) {
+        var newHeight = $('html').height() - $('header').outerHeight(true) - 
+                        $('#prime-input').outerHeight(true) - 
+                        (sel.outerHeight(true) - sel.height()) - 10;
+                        // (10 = #content padding)
+        sel.height(newHeight);
+    } 
+
+    sizeContent($('.channel .output'));
 
     // VERY TEMPORARY -- JUST FOR TESTING
     $('#sidebar .channels li').click(function() {

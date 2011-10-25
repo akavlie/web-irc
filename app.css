@@ -1,6 +1,12 @@
-* {
+html, body {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body {
 	color: #444;
-	font-family: Helvetica;
+	font-family: arial;
 }
 
 ul {
@@ -10,7 +16,6 @@ ul {
 
 #content {
 	padding: 5px;
-	min-height: 500px;
 }
 
 header {
@@ -52,9 +57,9 @@ header .channels li {
 
 .channel .output {
     border: 1px solid black;
-    min-height: 400px;
     padding: 5px;
     margin-bottom: 5px;
+    overflow: auto;
 }
 
 #prime-input {
