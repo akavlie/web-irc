@@ -138,12 +138,12 @@ $(function() {
     channelWindow.focus(cons);
 
     // VERY TEMPORARY -- JUST FOR TESTING
-    $('.channels li').click(function() {
+    $('#sidebar .channels li').click(function() {
         var name = $(this).text();
         app.joinChannel(name);
     });
 
-    $('.channels li .close').click(function() {
+    $('#sidebar .channels li .close').click(function() {
         var name = $(this).paren().text();
         console.log('Leaving ' + name);
         socket.emit('leave', {name: name})
@@ -164,7 +164,10 @@ $(function() {
 
     socket.on('motd', function(motd) {
         console.log(motd);
-        cons.stream.add({sender: 'server', text: motd});
+        var lines = motd.split('\n');
+        lines.forEach(function(line) {
+            cons.stream.add({sender: '', text: line})
+        });
     });
 
 });
