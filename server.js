@@ -31,20 +31,31 @@ function handler(req, res) {
 
 server.listen(8337);
 
-// IRC client
-var client = new irc.Client('irc.freenode.net', 'aktest', {
-	channels: []
-});
-
 // Socket.IO
 io.sockets.on('connection', function(socket) {
+	// IRC client
+	var client = new irc.Client('irc.freenode.net', 'aktest', {
+		channels: []
+	});
+
+	// Channel & private messages
 	client.addListener('message', function(from, to, message) {
 		console.log(from, message);
-		socket.emit('message', {from: from, to: to, message: message});
+		socket.emit('message', {from: from, to: to, text: message});
+	});
+
+	client.addListener('motd', function(motd) {
+		// console.log(motd);
+		socket.emit('motd', motd);
 	});
 
     socket.on('join', function(data) {
         client.join(data.name);
         console.log('Joined ' + data.name)
+    });
+
+    socket.on('disconnect', function() {
+    	// Disconnect user
+    	console.log('User disconnected');
     })
 });

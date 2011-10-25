@@ -1,5 +1,9 @@
 $(function() {
 
+    // socket.io init
+    var socket = io.connect('http://localhost');
+
+
     // MODELS & COLLECTIONS
     // ====================
     var Message = Backbone.Model.extend({
@@ -17,9 +21,11 @@ $(function() {
         // - name
         initialize: function() {
             this.stream = new Stream;
-            console.log('Joining ' + this.get('name'));
-            socket.emit('join', {name: this.get('name')});
-            // this.setActive();
+            // Only join true channels
+            if (this.get('name').indexOf('#') == 0) {
+                console.log('Joining ' + this.get('name'));
+                socket.emit('join', {name: this.get('name')});
+            }
         },
 
         setActive: function() {
@@ -50,7 +56,7 @@ $(function() {
         el: $('.channel .output'),
 
         initialize: function() {
-            channels.bind('add', this.focus, this);
+            // channel.bind('add', this.focus, this);
             _.bindAll(this);
         },
 
@@ -73,7 +79,6 @@ $(function() {
         tagName: 'li',
         initialize: function() {
             this.render();
-            this.model.bind('activate', this.setActive, this);
         },
 
         events: {
@@ -127,6 +132,10 @@ $(function() {
 
     var channelWindow = new ChannelView,
         app = new AppView;
+    
+    // Create the console "channel"
+    window.cons = new Channel({name: 'console'});
+    channelWindow.focus(cons);
 
     // VERY TEMPORARY -- JUST FOR TESTING
     $('.channels li').click(function() {
@@ -141,17 +150,21 @@ $(function() {
     });
 
 
-    var socket = io.connect('http://localhost');
 
-    socket.on('message', function(obj) {
+    socket.on('message', function(msg) {
         // Look for channel that matches the 'to'
         // property for the message from the server
         var channel = channels.detect(function(ch) {
-            return ch.get('name') === obj.to;
+            return ch.get('name') === msg.to;
         });
         if (channel) {
-        	channel.stream.add({sender: obj.from, text: obj.message});
+        	channel.stream.add({sender: msg.from, text: msg.text});
         }
+    });
+
+    socket.on('motd', function(motd) {
+        console.log(motd);
+        cons.stream.add({sender: 'server', text: motd});
     });
 
 });
