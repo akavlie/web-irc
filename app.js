@@ -85,6 +85,7 @@ $(function() {
             // Only the selected channel should send messages
             channels.each(function(ch) { ch.stream.unbind('add'); });
             channel.stream.bind('add', this.addMessage, this);
+            this.focused = channel;
         }
     });
 
@@ -131,7 +132,12 @@ $(function() {
 
         initialize: function() {
             channels.bind('add', this.addTab, this);
+            this.input = this.$('#prime-input');
             this.render();
+        },
+
+        events: {
+            'keypress #prime-input': 'parseInput'
         },
 
         addTab: function(channel) {
@@ -142,6 +148,19 @@ $(function() {
 
         joinChannel: function(name) {
             channels.add({name: name});
+        },
+
+        // Should be launch point for parsing / commands and such
+        // in due time
+        parseInput: function(e) {
+            if (e.keyCode != 13) return;
+            var channel = channelWindow.focused;
+            socket.emit('say', {
+                target: channel.get('name'),
+                message: this.input.val()
+            });
+            channel.stream.add({sender: msg.from, text: msg.text});
+            this.input.val('');
         },
 
         render: function() {

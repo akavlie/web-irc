@@ -22,12 +22,12 @@ Here's what works:
 
 - Join (hardcoded) network, see MOTD
 - Join (sample list of) channels
+- Send messages to channels
 - Switch between channel tabs, see chat output
 - Leave channels
 
 Here's (a partial list of) what doesn't work yet:
 
-- Saying anything
 - Status messages
 - Private messages
 - / commands in input field

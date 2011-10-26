@@ -61,6 +61,11 @@ io.sockets.on('connection', function(socket) {
         client.part(name);
     });
 
+    socket.on('say', function(data) {
+        console.log('SAY: ' + data.target + '=>' + data.message);
+        client.say(data.target, data.message);
+    });
+
     socket.on('disconnect', function() {
     	// Disconnect user
     	console.log('User disconnected');
