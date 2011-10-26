@@ -3,16 +3,14 @@ Web-IRC
 
 ### A web IRC client
 
+The goal for this project is to become the best in-browser IRC client available,
+and bring the best ideas from modern web applications to IRC. It was inspired by a [request for improvements to qwebirc](https://github.com/paulirish/lazyweb-requests/issues/31)
+by Paul Irish.
+
 Web-IRC is based on [node.js](http://nodejs.org/) and 
 Martyn Smith's [node-irc](https://github.com/martynsmith/node-irc) on the backend,
 and [Backbone.js](http://documentcloud.github.com/backbone/) and
 [jQuery](http://jquery.com/) on the frontend.
-
-The goal for this project is to become the best in-browser IRC client available,
-and bring the best ideas from modern web applications to IRC.
-
-This project was inspired by a [request for improvements to qwebirc](https://github.com/paulirish/lazyweb-requests/issues/31)
-by Paul Irish.
 
 
 Status
@@ -57,4 +55,4 @@ Here are some popular sites that use (or link to) a web IRC client:
 License
 -------
 
-This project is licensed under the MIT license. See `LICENSE`.
+MIT licensed. See `LICENSE`.
