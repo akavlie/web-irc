@@ -37,6 +37,17 @@ Here's (a partial list of) what doesn't work yet:
 
 Design/UI/UX help also **desperately needed**.
 
+Installation
+------------
+
+1. Install node.js ([instructions](https://github.com/joyent/node/wiki/Installation))
+2. Install npm
+	curl http://npmjs.org/install.sh | sh
+3. Install node-irc
+	npm install node-irc
+4. Run server
+	node server.js
+5. Point your browser at `http://localhost:8337/	
 
 Rationale
 ---------
