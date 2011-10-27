@@ -47,9 +47,13 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	client.addListener('motd', function(motd) {
-		// console.log(motd);
 		socket.emit('motd', motd);
 	});
+
+    // List of nicks for a channel, sent after joining
+    client.addListener('names', function(channel, nicks) {
+        socket.emit('names', {channel: channel, nicks: nicks});
+    });
 
     socket.on('join', function(name) {
         client.join(name);

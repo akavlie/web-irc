@@ -73,6 +73,16 @@ header .channels li .close {
     overflow: auto;
 }
 
+.channel .nicks {
+    float: right;
+    width: 200px;
+    overflow: auto;
+    padding: 5px;
+    margin: 0 0 5px 5px;
+    border: 1px solid gray;
+    display: none;
+}
+
 #prime-input {
     font-size: 15px;
     position: relative;

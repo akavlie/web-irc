@@ -19,6 +19,7 @@ $(function() {
     var Channel = Backbone.Model.extend({
         // expected properties:
         // - name
+        // - participants
         initialize: function() {
             this.stream = new Stream;
             // Only join true channels
@@ -66,7 +67,7 @@ $(function() {
     });
 
     var ChannelView = Backbone.View.extend({
-        el: $('.channel .output'),
+        el: $('.channel'),
 
         initialize: function() {
             // channel.bind('add', this.focus, this);
@@ -75,17 +76,31 @@ $(function() {
 
     	addMessage: function(message) {
            var view = new MessageView({model: message});
-           $(this.el).append(view.render().el);
+           this.$('.output').append(view.render().el);
     	},
 
+        // Switch focus to a different channel
         focus: function(channel) {
             console.log('Focusing channel ' + channel.get('name'));
-            $(this.el).empty();
+            this.$('.output').empty();
             channel.stream.each(this.addMessage);
             // Only the selected channel should send messages
-            channels.each(function(ch) { ch.stream.unbind('add'); });
+            channels.each(function(ch) {
+                ch.stream.unbind('add');
+                ch.unbind('change:participants');
+            });
             channel.stream.bind('add', this.addMessage, this);
+            channel.bind('change:participants', this.updateNicks, this);
             this.focused = channel;
+        },
+
+        updateNicks: function(model, nicks) {
+            _.keys(nicks).forEach(function(nick) {
+                // TODO: Use a template or something here
+                this.$('.nicks').append('<div>' + nick + '</div>');
+            });
+            this.$('.nicks').show();
+            console.log('Nicks rendered');
         }
     });
 
@@ -167,6 +182,7 @@ $(function() {
             // Dynamically assign height
             $(window).resize(function() {
                 sizeContent($('.channel .output'));
+                sizeContent($('.channel .nicks'));
             });
         }
 
@@ -188,6 +204,7 @@ $(function() {
     } 
 
     sizeContent($('.channel .output'));
+    sizeContent($('.channel .nicks'));
 
     // VERY TEMPORARY -- JUST FOR TESTING
     $('#sidebar .channels li').click(function() {
@@ -217,6 +234,13 @@ $(function() {
         motd.split('\n').forEach(function(line) {
             channels.getByName('console').stream.add({sender: '', text: line});
         });
+    });
+
+    socket.on('names', function(data) {
+        channel = channels.getByName(data.channel);
+        console.log(data.nicks);
+        console.log(channel);
+        channel.set({participants: data.nicks});
     });
 
 });
