@@ -183,7 +183,7 @@ $(function() {
         var newHeight = $('html').height() - $('header').outerHeight(true) - 
                         $('#prime-input').outerHeight(true) - 
                         (sel.outerHeight(true) - sel.height()) - 10;
-                        // (10 = #content padding; extra 5 prevents jittery resizing)
+                        // (10 = #content padding)
         sel.height(newHeight);
     } 
 
