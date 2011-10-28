@@ -70,6 +70,10 @@ io.sockets.on('connection', function(socket) {
         client.say(data.target, data.message);
     });
 
+    socket.on('command', function(text) {
+        client.send(text);
+    });
+
     socket.on('disconnect', function() {
     	// Disconnect user
     	console.log('User disconnected');

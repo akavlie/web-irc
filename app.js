@@ -87,6 +87,7 @@ $(function() {
     	},
 
         addNick: function(person) {
+            // TODO: Use a template here!
             this.$('.nicks').append('<div>' + person.get('opStatus') + person.get('nick') + '</div>');
         },
 
@@ -99,7 +100,6 @@ $(function() {
 
             channel.stream.each(this.addMessage);
             channel.participants.each(this.addNick);
-            console.log(channel.participants);
             if (channel.get('name') == 'console')
                 this.$('.nicks').hide();
             else
@@ -186,6 +186,11 @@ $(function() {
         parseInput: function(e) {
             if (e.keyCode != 13) return;
             var channel = channelWindow.focused;
+            if (this.input.val().trim().indexOf('/') === 0) {
+                console.log('IRC command detected -- sending to server');
+                return socket.emit('command', this.input.val().trim().substr(1));
+            }
+
             socket.emit('say', {
                 target: channel.get('name'),
                 message: this.input.val()
