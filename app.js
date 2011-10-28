@@ -16,12 +16,19 @@ $(function() {
         model: Message
     });
 
+    var Person = Backbone.Model.extend({
+    });
+
+    var Participants = Backbone.Collection.extend({
+        model: Person
+    });
+
     var Channel = Backbone.Model.extend({
         // expected properties:
         // - name
-        // - participants
         initialize: function() {
             this.stream = new Stream;
+            this.participants = new Participants;
             // Only join true channels
             if (this.get('name').indexOf('#') == 0) {
                 console.log('Joining ' + this.get('name'));
@@ -79,27 +86,35 @@ $(function() {
            this.$('.output').append(view.render().el);
     	},
 
+        addNick: function(person) {
+            this.$('.nicks').append('<div>' + person.get('opStatus') + person.get('nick') + '</div>');
+        },
+
         // Switch focus to a different channel
         focus: function(channel) {
             console.log('Focusing channel ' + channel.get('name'));
+            this.focused = channel;
             this.$('.output').empty();
+            this.$('.nicks').empty();
+
             channel.stream.each(this.addMessage);
+            channel.participants.each(this.addNick);
+            console.log(channel.participants);
+            if (channel.get('name') == 'console')
+                this.$('.nicks').hide();
+            else
+                this.$('.nicks').show();
+
             // Only the selected channel should send messages
             channels.each(function(ch) {
                 ch.stream.unbind('add');
-                ch.unbind('change:participants');
+                ch.participants.unbind('add');
             });
             channel.stream.bind('add', this.addMessage, this);
-            channel.bind('change:participants', this.updateNicks, this);
-            this.focused = channel;
+            channel.participants.bind('add', this.addNick, this);
         },
 
         updateNicks: function(model, nicks) {
-            _.keys(nicks).forEach(function(nick) {
-                // TODO: Use a template or something here
-                this.$('.nicks').append('<div>' + nick + '</div>');
-            });
-            this.$('.nicks').show();
             console.log('Nicks rendered');
         }
     });
@@ -122,6 +137,7 @@ $(function() {
             $(this.el).remove();
         },
 
+        // Set as active tab; focus window on channel
         setActive: function() {
             console.log('View setting active status');
             $(this.el).addClass('active')
@@ -240,7 +256,9 @@ $(function() {
         channel = channels.getByName(data.channel);
         console.log(data.nicks);
         console.log(channel);
-        channel.set({participants: data.nicks});
+        for (var nick in data.nicks) {
+            channel.participants.add({nick: nick, opStatus: data.nicks[nick]});
+        }
     });
 
 });
