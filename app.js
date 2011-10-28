@@ -23,6 +23,10 @@ $(function() {
         model: Person
     });
 
+    // temporary -- hardcoding to correspond with server
+    // TODO -- do this better
+    var me = new Person({nick: 'aktest'});
+
     var Channel = Backbone.Model.extend({
         // expected properties:
         // - name
@@ -32,7 +36,6 @@ $(function() {
             // Only join true channels
             if (this.get('name').indexOf('#') == 0) {
                 console.log('Joining ' + this.get('name'));
-                socket.emit('join', this.get('name'));
             }
         },
 
@@ -178,7 +181,8 @@ $(function() {
         },
 
         joinChannel: function(name) {
-            channels.add({name: name});
+            // channels.add({name: name});
+            socket.emit('join', name);
         },
 
         // Should be launch point for parsing / commands and such
@@ -188,14 +192,15 @@ $(function() {
             var channel = channelWindow.focused;
             if (this.input.val().trim().indexOf('/') === 0) {
                 console.log('IRC command detected -- sending to server');
-                return socket.emit('command', this.input.val().trim().substr(1));
+                socket.emit('command', this.input.val().trim().substr(1));
+            } else {
+                socket.emit('say', {
+                    target: channel.get('name'),
+                    message: this.input.val()
+                });
+                channel.stream.add({sender: msg.from, text: msg.text});
             }
 
-            socket.emit('say', {
-                target: channel.get('name'),
-                message: this.input.val()
-            });
-            channel.stream.add({sender: msg.from, text: msg.text});
             this.input.val('');
         },
 
@@ -213,7 +218,8 @@ $(function() {
         app = new AppView;
     
     // Create the console "channel"
-    app.joinChannel('console');
+    // app.joinChannel('console');
+    channels.add({name: 'console'});
 
     // Set output window to full height, minus other elements
     function sizeContent(sel) {
@@ -255,6 +261,13 @@ $(function() {
         motd.split('\n').forEach(function(line) {
             channels.getByName('console').stream.add({sender: '', text: line});
         });
+    });
+
+    socket.on('join', function(data) {
+        console.log('Join event received for ' + data.channel + ' - ' + data.nick);
+        if (data.nick == me.get('nick')) {
+            channels.add({name: data.channel});
+        }
     });
 
     socket.on('names', function(data) {

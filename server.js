@@ -55,6 +55,10 @@ io.sockets.on('connection', function(socket) {
         socket.emit('names', {channel: channel, nicks: nicks});
     });
 
+    client.addListener('join', function(channel, nick) {
+        socket.emit('join', {channel: channel, nick: nick});
+    });
+
     socket.on('join', function(name) {
         client.join(name);
         console.log('Joined ' + name);
