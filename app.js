@@ -37,7 +37,7 @@ $(function() {
         },
 
         setActive: function() {
-            console.log('Setting ' + this.get('id') + ' as the active frame.')
+            console.log('Setting ' + this.get('id') + ' as the active frame.');
             // More stuff will go here
         },
 
@@ -67,6 +67,8 @@ $(function() {
 
     var FrameView = Backbone.View.extend({
         el: $('.frame'),
+        // to track scroll position
+        position: {},
 
         initialize: function() {
             // frame.bind('add', this.focus, this);
@@ -74,8 +76,17 @@ $(function() {
         },
 
     	addMessage: function(message) {
-           var view = new MessageView({model: message});
-           this.$('.output').append(view.render().el);
+            var position = $('.output').scrollTop();
+            atBottom = $('.output')[0].scrollHeight - position
+                       == $('.output').innerHeight();
+            console.log(atBottom);
+            var position = this.$('.output').scrollTop();
+            var view = new MessageView({model: message});
+            $('.output').append(view.render().el);
+            // Scroll to bottom on new message if already at bottom
+            if (atBottom) {
+                $('.output').scrollTop(position + 100);
+            }
     	},
 
         addNick: function(person) {
@@ -85,7 +96,11 @@ $(function() {
 
         // Switch focus to a different frame
         focus: function(frame) {
-            console.log('Focusing frame ' + frame.get('id'));
+            // Save scroll position for current frame
+            if (this.focused) {
+                this.position[this.focused.get('id')] = this.$('.output').scrollTop();
+                console.log('Saving position for frame ' + frame.get('id'));
+            }
             this.focused = frame;
             this.$('.output').empty();
             this.$('.nicks').empty();
@@ -96,6 +111,7 @@ $(function() {
                 this.$('.nicks').hide();
             else
                 this.$('.nicks').show();
+            this.$('.output').scrollTop(this.position[frame.get('id')] || 0);
 
             // Only the selected frame should send messages
             frames.each(function(frm) {
@@ -177,16 +193,18 @@ $(function() {
         // in due time
         parseInput: function(e) {
             if (e.keyCode != 13) return;
-            var frame = frameWindow.focused;
-            if (this.input.val().trim().indexOf('/') === 0) {
+            var frame = frameWindow.focused,
+                input = this.input.val();
+
+            if (input.indexOf('/') === 0) {
                 console.log('IRC command detected -- sending to server');
-                socket.emit('command', this.input.val().trim().substr(1));
+                socket.emit('command', input.substr(1));
             } else {
                 socket.emit('say', {
                     target: frame.get('id'),
-                    message: this.input.val()
+                    message: input
                 });
-                frame.stream.add({sender: msg.from, text: msg.text});
+                frame.stream.add({sender: me.get('nick'), text: input});
             }
 
             this.input.val('');
