@@ -235,8 +235,6 @@ $(function() {
 
 
     socket.on('message', function(msg) {
-        // Look for frame that matches the 'to'
-        // property for the message from the server
         frame = frames.get(msg.to);
         if (frame) {
         	frame.stream.add({sender: msg.from, text: msg.text});

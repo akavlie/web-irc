@@ -44,7 +44,7 @@ io.sockets.on('connection', function(socket) {
         'join': ['channel', 'nick'],
         'part': ['channel', 'nick'],
         'names': ['channel', 'nicks'],
-        'message': ['from', 'to', 'message'],
+        'message': ['from', 'to', 'text'],
         'motd': ['motd']
     };
 
