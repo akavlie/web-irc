@@ -40,6 +40,19 @@ io.sockets.on('connection', function(socket) {
         channels: []
     });
 
+    var events = {
+        'join': ['channel', 'nick'],
+        'part': ['channel', 'nick'],
+        'names': ['channel', 'nicks'],
+        'message': ['from', 'to', 'message'],
+        'motd': ['motd']
+    };
+
+    socket.on('join', function(name) { client.join(name); });
+    socket.on('part', function(name) { client.part(name); });
+    socket.on('say', function(data) { client.say(data.target, data.message); });
+    socket.on('command', function(text) { client.send(text); });
+    socket.on('disconnect', function() { client.disconnect(); })
 
     // Add a listener on client for the given event & argument names
     var activateListener = function(event, argNames) {
@@ -57,39 +70,5 @@ io.sockets.on('connection', function(socket) {
         });
     };
 
-    var events = {
-        'join': ['channel', 'nick'],
-        'part': ['channel', 'nick'],
-        'names': ['channel', 'nicks'],
-        'message': ['from', 'to', 'message'],
-        'motd': ['motd']
-    };
-
     for (var event in events) { activateListener(event, events[event]); }
-
-    // Incoming messages
-    socket.on('join', function(name) {
-        client.join(name);
-        console.log('Joined ' + name);
-    });
-
-    socket.on('part', function(name) {
-        console.log('Parting ' + name);
-        client.part(name);
-    });
-
-    socket.on('say', function(data) {
-        console.log('SAY: ' + data.target + '=>' + data.message);
-        client.say(data.target, data.message);
-    });
-
-    socket.on('command', function(text) {
-        client.send(text);
-    });
-
-    socket.on('disconnect', function() {
-    	// Disconnect user
-    	console.log('User disconnected');
-        client.disconnect();
-    })
 });
