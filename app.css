@@ -26,10 +26,10 @@ header {
 	float: right;
 }
 
-.channels {
+.frames {
     margin: 0;
 }
-.channels li {
+.frames li {
     cursor: default;
     font-size: 14px;
 	padding: 4px 7px;
@@ -37,23 +37,23 @@ header {
 	background: #dedede;
 }
 
-.channels li.active {
+.frames li.active {
     color: white;
     background: #74a8f5;
 }
 
-#sidebar .channels {
+#sidebar .frames {
     display: block;
 }
 
-header .channels li {
+header .frames li {
     display: inline-block;
 }
-header .channels li .name {
+header .frames li .name {
     padding-right: 3px;
     border-right: 1px solid white;
 }
-header .channels li .close {
+header .frames li .close {
     cursor: pointer;
     display: inline-block;
     background: transparent url(images/close.png) no-repeat center center;
@@ -61,19 +61,19 @@ header .channels li .close {
     height: 10px;
 }
 
-.channel {
+.frame {
     position: relative;
     margin-right: 75px;
 }
 
-.channel .output {
+.frame .output {
     border: 1px solid black;
     padding: 5px;
     margin-bottom: 5px;
     overflow: auto;
 }
 
-.channel .nicks {
+.frame .nicks {
     float: right;
     width: 200px;
     overflow: auto;

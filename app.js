@@ -27,20 +27,17 @@ $(function() {
     // TODO -- do this better
     var me = new Person({nick: 'aktest'});
 
-    var Channel = Backbone.Model.extend({
+    var Frame = Backbone.Model.extend({
         // expected properties:
         // - id
+        default: { 'type': 'frame'},
         initialize: function() {
             this.stream = new Stream;
             this.participants = new Participants;
-            // Only join true channels
-            if (this.get('id').indexOf('#') == 0) {
-                console.log('Joining ' + this.get('id'));
-            }
         },
 
         setActive: function() {
-            console.log('Setting ' + this.get('id') + ' as the active channel.')
+            console.log('Setting ' + this.get('id') + ' as the active frame.')
             // More stuff will go here
         },
 
@@ -52,9 +49,9 @@ $(function() {
 
     });
 
-    var ChannelList = Backbone.Collection.extend({ model: Channel });
+    var FrameList = Backbone.Collection.extend({ model: Frame });
 
-    window.channels = new ChannelList;
+    window.frames = new FrameList;
 
 
     // VIEWS
@@ -68,11 +65,11 @@ $(function() {
     	}
     });
 
-    var ChannelView = Backbone.View.extend({
-        el: $('.channel'),
+    var FrameView = Backbone.View.extend({
+        el: $('.frame'),
 
         initialize: function() {
-            // channel.bind('add', this.focus, this);
+            // frame.bind('add', this.focus, this);
             _.bindAll(this);
         },
 
@@ -86,27 +83,27 @@ $(function() {
             this.$('.nicks').append('<div>' + person.get('opStatus') + person.get('nick') + '</div>');
         },
 
-        // Switch focus to a different channel
-        focus: function(channel) {
-            console.log('Focusing channel ' + channel.get('name'));
-            this.focused = channel;
+        // Switch focus to a different frame
+        focus: function(frame) {
+            console.log('Focusing frame ' + frame.get('id'));
+            this.focused = frame;
             this.$('.output').empty();
             this.$('.nicks').empty();
 
-            channel.stream.each(this.addMessage);
-            channel.participants.each(this.addNick);
-            if (channel.get('name') == 'console')
+            frame.stream.each(this.addMessage);
+            frame.participants.each(this.addNick);
+            if (frame.get('id') == 'status')
                 this.$('.nicks').hide();
             else
                 this.$('.nicks').show();
 
-            // Only the selected channel should send messages
-            channels.each(function(ch) {
-                ch.stream.unbind('add');
-                ch.participants.unbind('add');
+            // Only the selected frame should send messages
+            frames.each(function(frm) {
+                frm.stream.unbind('add');
+                frm.participants.unbind('add');
             });
-            channel.stream.bind('add', this.addMessage, this);
-            channel.participants.bind('add', this.addNick, this);
+            frame.stream.bind('add', this.addMessage, this);
+            frame.participants.bind('add', this.addNick, this);
         },
 
         updateNicks: function(model, nicks) {
@@ -114,7 +111,7 @@ $(function() {
         }
     });
 
-    var ChannelTabView = Backbone.View.extend({
+    var FrameTabView = Backbone.View.extend({
         tagName: 'li',
         tmpl: '<span class="name">{{ text }}</span> <span class="close"></span>',
 
@@ -132,16 +129,16 @@ $(function() {
             $(this.el).remove();
         },
 
-        // Set as active tab; focus window on channel
+        // Set as active tab; focus window on frame
         setActive: function() {
             console.log('View setting active status');
             $(this.el).addClass('active')
                 .siblings().removeClass('active');
-            channelWindow.focus(this.model);
+            frameWindow.focus(this.model);
         },
 
         render: function() {
-            console.log('Rendering channel tab');
+            console.log('Rendering frame tab');
             
             var html = Mustache.to_html(this.tmpl, {text: this.model.get('id')});
             $(this.el).html(html);
@@ -153,11 +150,11 @@ $(function() {
 
     var AppView = Backbone.View.extend({
         el: $('#content'),
-        testChannels: $('#sidebar .channels'),
-        channelList: $('header .channels'),
+        testFrames: $('#sidebar .frames'),
+        frameList: $('header .frames'),
 
         initialize: function() {
-            channels.bind('add', this.addTab, this);
+            frames.bind('add', this.addTab, this);
             this.input = this.$('#prime-input');
             this.render();
         },
@@ -166,9 +163,9 @@ $(function() {
             'keypress #prime-input': 'parseInput'
         },
 
-        addTab: function(channel) {
-            var tab = new ChannelTabView({model: channel});
-            this.channelList.append(tab.el);
+        addTab: function(frame) {
+            var tab = new FrameTabView({model: frame});
+            this.frameList.append(tab.el);
             tab.setActive();
         },
 
@@ -180,16 +177,16 @@ $(function() {
         // in due time
         parseInput: function(e) {
             if (e.keyCode != 13) return;
-            var channel = channelWindow.focused;
+            var frame = frameWindow.focused;
             if (this.input.val().trim().indexOf('/') === 0) {
                 console.log('IRC command detected -- sending to server');
                 socket.emit('command', this.input.val().trim().substr(1));
             } else {
                 socket.emit('say', {
-                    target: channel.get('id'),
+                    target: frame.get('id'),
                     message: this.input.val()
                 });
-                channel.stream.add({sender: msg.from, text: msg.text});
+                frame.stream.add({sender: msg.from, text: msg.text});
             }
 
             this.input.val('');
@@ -198,18 +195,18 @@ $(function() {
         render: function() {
             // Dynamically assign height
             $(window).resize(function() {
-                sizeContent($('.channel .output'));
-                sizeContent($('.channel .nicks'));
+                sizeContent($('.frame .output'));
+                sizeContent($('.frame .nicks'));
             });
         }
 
     });
 
-    var channelWindow = new ChannelView,
+    var frameWindow = new FrameView,
         app = new AppView;
     
-    // Create the status "channel"
-    channels.add({id: 'status'});
+    // Create the status "frame"
+    frames.add({id: 'status', type: 'status'});
 
     // Set output window to full height, minus other elements
     function sizeContent(sel) {
@@ -220,16 +217,16 @@ $(function() {
         sel.height(newHeight);
     } 
 
-    sizeContent($('.channel .output'));
-    sizeContent($('.channel .nicks'));
+    sizeContent($('.frame .output'));
+    sizeContent($('.frame .nicks'));
 
     // VERY TEMPORARY -- JUST FOR TESTING
-    $('#sidebar .channels li').click(function() {
+    $('#sidebar .frames li').click(function() {
         var name = $(this).text();
         app.joinChannel(name);
     });
 
-    $('#sidebar .channels li .close').click(function() {
+    $('#sidebar .frames li .close').click(function() {
         var name = $(this).parent().text();
         console.log('Leaving ' + name);
         socket.emit('leave', {name: name})
@@ -238,33 +235,33 @@ $(function() {
 
 
     socket.on('message', function(msg) {
-        // Look for channel that matches the 'to'
+        // Look for frame that matches the 'to'
         // property for the message from the server
-        channel = channels.getByName(msg.to);
-        if (channel) {
-        	channel.stream.add({sender: msg.from, text: msg.text});
+        frame = frames.get(msg.to);
+        if (frame) {
+        	frame.stream.add({sender: msg.from, text: msg.text});
         }
     });
 
     socket.on('motd', function(data) {
         data.motd.split('\n').forEach(function(line) {
-            channels.get('status').stream.add({sender: '', text: line});
+            frames.get('status').stream.add({sender: '', text: line});
         });
     });
 
     socket.on('join', function(data) {
         console.log('Join event received for ' + data.channel + ' - ' + data.nick);
         if (data.nick == me.get('nick')) {
-            channels.add({id: data.channel});
+            frames.add({id: data.channel});
         }
     });
 
     socket.on('names', function(data) {
-        channel = channels.get(data.channel);
+        frame = frames.get(data.channel);
         console.log(data.nicks);
-        console.log(channel);
+        console.log(frame);
         for (var nick in data.nicks) {
-            channel.participants.add({nick: nick, opStatus: data.nicks[nick]});
+            frame.participants.add({nick: nick, opStatus: data.nicks[nick]});
         }
     });
 
