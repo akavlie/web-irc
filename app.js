@@ -29,38 +29,30 @@ $(function() {
 
     var Channel = Backbone.Model.extend({
         // expected properties:
-        // - name
+        // - id
         initialize: function() {
             this.stream = new Stream;
             this.participants = new Participants;
             // Only join true channels
-            if (this.get('name').indexOf('#') == 0) {
-                console.log('Joining ' + this.get('name'));
+            if (this.get('id').indexOf('#') == 0) {
+                console.log('Joining ' + this.get('id'));
             }
         },
 
         setActive: function() {
-            console.log('Setting ' + this.get('name') + ' as the active channel.')
+            console.log('Setting ' + this.get('id') + ' as the active channel.')
             // More stuff will go here
         },
 
         part: function() {
-            console.log('Leaving ' + this.get('name'));
-            socket.emit('part', this.get('name'));
+            console.log('Leaving ' + this.get('id'));
+            socket.emit('part', this.get('id'));
             this.destroy();
         }
 
     });
 
-    var ChannelList = Backbone.Collection.extend({
-        model: Channel,
-
-        getByName: function(name) {
-            return this.detect(function(channel) {
-                return channel.get('name') === name;
-            });
-        }
-    });
+    var ChannelList = Backbone.Collection.extend({ model: Channel });
 
     window.channels = new ChannelList;
 
@@ -151,7 +143,7 @@ $(function() {
         render: function() {
             console.log('Rendering channel tab');
             
-            var html = Mustache.to_html(this.tmpl, {text: this.model.get('name')});
+            var html = Mustache.to_html(this.tmpl, {text: this.model.get('id')});
             $(this.el).html(html);
             return this;
         }
@@ -181,7 +173,6 @@ $(function() {
         },
 
         joinChannel: function(name) {
-            // channels.add({name: name});
             socket.emit('join', name);
         },
 
@@ -195,7 +186,7 @@ $(function() {
                 socket.emit('command', this.input.val().trim().substr(1));
             } else {
                 socket.emit('say', {
-                    target: channel.get('name'),
+                    target: channel.get('id'),
                     message: this.input.val()
                 });
                 channel.stream.add({sender: msg.from, text: msg.text});
@@ -217,9 +208,8 @@ $(function() {
     var channelWindow = new ChannelView,
         app = new AppView;
     
-    // Create the console "channel"
-    // app.joinChannel('console');
-    channels.add({name: 'console'});
+    // Create the status "channel"
+    channels.add({id: 'status'});
 
     // Set output window to full height, minus other elements
     function sizeContent(sel) {
@@ -240,7 +230,7 @@ $(function() {
     });
 
     $('#sidebar .channels li .close').click(function() {
-        var name = $(this).paren().text();
+        var name = $(this).parent().text();
         console.log('Leaving ' + name);
         socket.emit('leave', {name: name})
     });
@@ -258,19 +248,19 @@ $(function() {
 
     socket.on('motd', function(data) {
         data.motd.split('\n').forEach(function(line) {
-            channels.getByName('console').stream.add({sender: '', text: line});
+            channels.get('status').stream.add({sender: '', text: line});
         });
     });
 
     socket.on('join', function(data) {
         console.log('Join event received for ' + data.channel + ' - ' + data.nick);
         if (data.nick == me.get('nick')) {
-            channels.add({name: data.channel});
+            channels.add({id: data.channel});
         }
     });
 
     socket.on('names', function(data) {
-        channel = channels.getByName(data.channel);
+        channel = channels.get(data.channel);
         console.log(data.nicks);
         console.log(channel);
         for (var nick in data.nicks) {
