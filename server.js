@@ -26,19 +26,44 @@ function handler(req, res) {
 	     	return res.end('Error loading index.html');
 	    }
 
-		res.writeHead(200, {'Content-Type': type});
- 		res.end(data);
- 	});
+        res.writeHead(200, {'Content-Type': type});
+        res.end(data);
+    });
 }
 
 server.listen(8337);
 
 // Socket.IO
 io.sockets.on('connection', function(socket) {
-	// IRC client
-	var client = new irc.Client('irc.freenode.net', 'aktest', {
-		channels: []
-	});
+    // IRC client
+    var client = new irc.Client('irc.freenode.net', 'aktest', {
+        channels: []
+    });
+
+
+    var activateListener = function(event, argNames) {
+        client.addListener(event, function() {
+            console.log('Event ' + event + ' sent');
+            // Associate specified names with callback arguments
+            // to avoid getting tripped up on the other side
+            var callbackArgs = arguments;
+            args = {};
+            argNames.forEach(function(arg, index) {
+                args[arg] = callbackArgs[index];
+            });
+            console.log(args);
+            socket.emit(event, args);
+        });
+    };
+
+    var events = {
+        'join': ['channel', 'nick'],
+        'part': ['channel', 'nick']
+    };
+
+    for (var event in events) {
+        activateListener(event, events[event]);
+    }
 
 	// Channel & private messages
 	client.addListener('message', function(from, to, message) {
@@ -55,9 +80,9 @@ io.sockets.on('connection', function(socket) {
         socket.emit('names', {channel: channel, nicks: nicks});
     });
 
-    client.addListener('join', function(channel, nick) {
-        socket.emit('join', {channel: channel, nick: nick});
-    });
+    // client.addListener('join', function(channel, nick) {
+    //     socket.emit('join', {channel: channel, nick: nick});
+    // });
 
     socket.on('join', function(name) {
         client.join(name);
