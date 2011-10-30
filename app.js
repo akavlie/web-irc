@@ -256,9 +256,8 @@ $(function() {
         }
     });
 
-    socket.on('motd', function(motd) {
-        console.log(motd);
-        motd.split('\n').forEach(function(line) {
+    socket.on('motd', function(data) {
+        data.motd.split('\n').forEach(function(line) {
             channels.getByName('console').stream.add({sender: '', text: line});
         });
     });

@@ -41,6 +41,7 @@ io.sockets.on('connection', function(socket) {
     });
 
 
+    // Add a listener on client for the given event & argument names
     var activateListener = function(event, argNames) {
         client.addListener(event, function() {
             console.log('Event ' + event + ' sent');
@@ -58,32 +59,15 @@ io.sockets.on('connection', function(socket) {
 
     var events = {
         'join': ['channel', 'nick'],
-        'part': ['channel', 'nick']
+        'part': ['channel', 'nick'],
+        'names': ['channel', 'nicks'],
+        'message': ['from', 'to', 'message'],
+        'motd': ['motd']
     };
 
-    for (var event in events) {
-        activateListener(event, events[event]);
-    }
+    for (var event in events) { activateListener(event, events[event]); }
 
-	// Channel & private messages
-	client.addListener('message', function(from, to, message) {
-		console.log(from, message);
-		socket.emit('message', {from: from, to: to, text: message});
-	});
-
-	client.addListener('motd', function(motd) {
-		socket.emit('motd', motd);
-	});
-
-    // List of nicks for a channel, sent after joining
-    client.addListener('names', function(channel, nicks) {
-        socket.emit('names', {channel: channel, nicks: nicks});
-    });
-
-    // client.addListener('join', function(channel, nick) {
-    //     socket.emit('join', {channel: channel, nick: nick});
-    // });
-
+    // Incoming messages
     socket.on('join', function(name) {
         client.join(name);
         console.log('Joined ' + name);
