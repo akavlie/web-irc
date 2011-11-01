@@ -45,6 +45,7 @@ io.sockets.on('connection', function(socket) {
         channels: []
     });
 
+    // Events to signal TO the front-end
     var events = {
         'join': ['channel', 'nick'],
         'part': ['channel', 'nick'],
@@ -53,10 +54,11 @@ io.sockets.on('connection', function(socket) {
         'motd': ['motd']
     };
 
+    // Socket events sent FROM the front-end
     socket.on('join', function(name) { client.join(name); });
     socket.on('part', function(name) { client.part(name); });
     socket.on('say', function(data) { client.say(data.target, data.message); });
-    socket.on('command', function(text) { client.send(text); });
+    socket.on('command', function(text) { console.log(text); client.send(text); });
     socket.on('disconnect', function() { client.disconnect(); })
 
     // Add a listener on client for the given event & argument names

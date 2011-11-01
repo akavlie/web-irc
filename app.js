@@ -43,7 +43,6 @@ $(function() {
 
         part: function() {
             console.log('Leaving ' + this.get('id'));
-            socket.emit('part', this.get('id'));
             this.destroy();
         }
 
@@ -140,6 +139,7 @@ $(function() {
         tmpl: $('#tab-tmpl').html(),
 
         initialize: function() {
+            this.model.bind('destroy', this.close, this);
             this.render();
         },
 
@@ -149,7 +149,10 @@ $(function() {
         },
 
         part: function() {
-            this.model.part();
+            socket.emit('part', this.model.get('id'));
+        },
+
+        close: function() {
             $(this.el).remove();
         },
 
@@ -277,6 +280,13 @@ $(function() {
         console.log('Join event received for ' + data.channel + ' - ' + data.nick);
         if (data.nick == me.get('nick')) {
             frames.add({id: data.channel});
+        }
+    });
+
+    socket.on('part', function(data) {
+        console.log('Part event received for ' + data.channel + ' - ' + data.nick);
+        if (data.nick == me.get('nick')) {
+            frames.get(data.channel).part();
         }
     });
 

@@ -128,7 +128,7 @@ header .frames li .name {
 
 .pills > li > .close-frame {
     cursor: pointer;
-    background: #f2f2f2 url(images/close.png) no-repeat center center;
+    background: #e2e2e2 url(images/close.png) no-repeat center center;
     width: 18px;
     height: 30px;
     border-radius: 0 3px 3px 0;
@@ -138,6 +138,6 @@ header .frames li .name {
     background-color: #0069d6;
 }
 
-.pills .close-frame:hover {
+.pills > li:hover > * {
     background-color: #00438a;
 }
