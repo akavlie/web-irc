@@ -30,7 +30,7 @@ $(function() {
     var Frame = Backbone.Model.extend({
         // expected properties:
         // - id
-        default: { 'type': 'frame'},
+        defaults: {'type': 'channel'},
         initialize: function() {
             this.stream = new Stream;
             this.participants = new Participants;
@@ -79,7 +79,6 @@ $(function() {
             var position = $('.output').scrollTop();
             atBottom = $('.output')[0].scrollHeight - position
                        == $('.output').innerHeight();
-            console.log(atBottom);
             var position = this.$('.output').scrollTop();
             var view = new MessageView({model: message});
             $('.output').append(view.render().el);
@@ -129,7 +128,7 @@ $(function() {
 
     var FrameTabView = Backbone.View.extend({
         tagName: 'li',
-        tmpl: '<span class="name">{{ text }}</span> <span class="close"></span>',
+        tmpl: $('#tab-tmpl').html(),
 
         initialize: function() {
             this.render();
@@ -137,7 +136,7 @@ $(function() {
 
         events: {
             'click': 'setActive',
-            'click .close': 'part'
+            'click .close-frame': 'part'
         },
 
         part: function() {
@@ -154,9 +153,16 @@ $(function() {
         },
 
         render: function() {
-            console.log('Rendering frame tab');
-            
-            var html = Mustache.to_html(this.tmpl, {text: this.model.get('id')});
+            console.log(this.model);
+            var self = this;
+            var context = {
+                text: this.model.get('id'),
+                type: this.model.get('type'),
+                isStatus: function() {
+                    return self.model.get('type') == 'status';
+                }
+            };
+            var html = Mustache.to_html(this.tmpl, context);
             $(this.el).html(html);
             return this;
         }
@@ -243,13 +249,6 @@ $(function() {
         var name = $(this).text();
         app.joinChannel(name);
     });
-
-    $('#sidebar .frames li .close').click(function() {
-        var name = $(this).parent().text();
-        console.log('Leaving ' + name);
-        socket.emit('leave', {name: name})
-    });
-
 
 
     socket.on('message', function(msg) {

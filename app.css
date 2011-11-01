@@ -4,10 +4,12 @@ html, body {
     margin: 0;
 }
 
+/*
 body {
 	color: #444;
 	font-family: arial;
 }
+*/
 
 ul {
 	list-style-type: none;
@@ -29,6 +31,8 @@ header {
 .frames {
     margin: 0;
 }
+
+/*
 .frames li {
     cursor: default;
     font-size: 14px;
@@ -41,11 +45,13 @@ header {
     color: white;
     background: #74a8f5;
 }
+*/
 
 #sidebar .frames {
     display: block;
 }
 
+/*
 header .frames li {
     display: inline-block;
 }
@@ -53,12 +59,14 @@ header .frames li .name {
     padding-right: 3px;
     border-right: 1px solid white;
 }
-header .frames li .close {
+*/
+
+header .frames li .close-frame {
     cursor: pointer;
-    display: inline-block;
-    background: transparent url(images/close.png) no-repeat center center;
-    width: 6px;
-    height: 10px;
+    background: #0069d6 url(images/close.png) no-repeat center center;
+    width: 18px;
+    height: 30px;
+    border-radius: 0 3px 3px 0;
 }
 
 .frame {
@@ -91,3 +99,20 @@ header .frames li .close {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
 }
+
+/* Twitter Bootstrap overrides
+----------------------------------------------------------------------*/
+
+.pills > li { margin-right: 8px;}
+.pills > li > a {
+    padding: 0 12px;
+    margin: 0 1px 0 0;
+    border-radius: 3px;
+}
+.pills > li > a.channel,
+.pills > li > a.pm {
+    border-radius: 3px 0 0 3px;
+}
+
+
+.pills > li > * { float: left; }

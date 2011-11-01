@@ -3,13 +3,14 @@
 <head>
 	<title>Webby IRC</title>
 
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.3.0/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="app.css">
 </head>
 
 <body>
     <div id="content">
         <header>
-            <ul class="frames"></ul>
+            <ul class="frames pills"></ul>
         </header>
 
         <div id="sidebar">
@@ -28,6 +29,13 @@
         </div>
     </div>
 
+    <!-- Mustache templates -->
+    <script id="tab-tmpl" type="text/html">
+        <a class="name {{type}}">{{text}}</a>
+        {{^isStatus}}
+            <span class="close-frame"></span>
+        {{/isStatus}}
+    </script>
 
     <!-- JAVASCRIPT -->
     <script src="/socket.io/socket.io.js"></script>
