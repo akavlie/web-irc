@@ -29,7 +29,7 @@ $(function() {
 
     var Frame = Backbone.Model.extend({
         // expected properties:
-        // - id
+        // - name
         defaults: {'type': 'channel'},
         initialize: function() {
             this.stream = new Stream;
@@ -37,18 +37,27 @@ $(function() {
         },
 
         setActive: function() {
-            console.log('Setting ' + this.get('id') + ' as the active frame.');
+            console.log('Setting ' + this.get('name') + ' as the active frame.');
             // More stuff will go here
         },
 
         part: function() {
-            console.log('Leaving ' + this.get('id'));
+            console.log('Leaving ' + this.get('name'));
             this.destroy();
         }
 
     });
 
-    var FrameList = Backbone.Collection.extend({ model: Frame });
+    var FrameList = Backbone.Collection.extend({
+        model: Frame,
+
+        getByName: function(name) {
+            return this.detect(function(frame) {
+                return frame.get('name') === name;
+            });
+        }
+ 
+    });
 
     window.frames = new FrameList;
 
@@ -103,7 +112,7 @@ $(function() {
         focus: function(frame) {
             // Save scroll position for current frame
             if (this.focused) {
-                this.position[this.focused.get('id')] = this.$('.output').scrollTop();
+                this.position[this.focused.get('name')] = this.$('.output').scrollTop();
             }
             this.focused = frame;
             this.$('.output').empty();
@@ -114,11 +123,11 @@ $(function() {
                 self.addMessage(message, false);
             });
             frame.participants.each(this.addNick);
-            if (frame.get('id') == 'status')
+            if (frame.get('name') == 'status')
                 this.$('.nicks').hide();
             else
                 this.$('.nicks').show();
-            this.$('.output').scrollTop(this.position[frame.get('id')] || 0);
+            this.$('.output').scrollTop(this.position[frame.get('name')] || 0);
 
             // Only the selected frame should send messages
             frames.each(function(frm) {
@@ -149,7 +158,7 @@ $(function() {
         },
 
         part: function() {
-            socket.emit('part', this.model.get('id'));
+            socket.emit('part', this.model.get('name'));
         },
 
         close: function() {
@@ -168,7 +177,7 @@ $(function() {
             console.log(this.model);
             var self = this;
             var context = {
-                text: this.model.get('id'),
+                text: this.model.get('name'),
                 type: this.model.get('type'),
                 isStatus: function() {
                     return self.model.get('type') == 'status';
@@ -219,7 +228,7 @@ $(function() {
                 socket.emit('command', input.substr(1));
             } else {
                 socket.emit('say', {
-                    target: frame.get('id'),
+                    target: frame.get('name'),
                     message: input
                 });
                 frame.stream.add({sender: me.get('nick'), text: input});
@@ -242,7 +251,7 @@ $(function() {
         app = new AppView;
     
     // Create the status "frame"
-    frames.add({id: 'status', type: 'status'});
+    frames.add({name: 'status', type: 'status'});
 
     // Set output window to full height, minus other elements
     function sizeContent(sel) {
@@ -264,7 +273,7 @@ $(function() {
 
 
     socket.on('message', function(msg) {
-        frame = frames.get(msg.to);
+        frame = frames.getByName(msg.to);
         if (frame) {
         	frame.stream.add({sender: msg.from, text: msg.text});
         }
@@ -272,26 +281,26 @@ $(function() {
 
     socket.on('motd', function(data) {
         data.motd.split('\n').forEach(function(line) {
-            frames.get('status').stream.add({sender: '', text: line});
+            frames.getByName('status').stream.add({sender: '', text: line});
         });
     });
 
     socket.on('join', function(data) {
         console.log('Join event received for ' + data.channel + ' - ' + data.nick);
         if (data.nick == me.get('nick')) {
-            frames.add({id: data.channel});
+            frames.add({name: data.channel});
         }
     });
 
     socket.on('part', function(data) {
         console.log('Part event received for ' + data.channel + ' - ' + data.nick);
         if (data.nick == me.get('nick')) {
-            frames.get(data.channel).part();
+            frames.getByName(data.channel).part();
         }
     });
 
     socket.on('names', function(data) {
-        frame = frames.get(data.channel);
+        frame = frames.getByName(data.channel);
         console.log(data.nicks);
         console.log(frame);
         for (var nick in data.nicks) {
