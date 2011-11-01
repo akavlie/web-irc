@@ -57,10 +57,14 @@ $(function() {
     // VIEWS
     // =====
     var MessageView = Backbone.View.extend({
-
+        tmpl: $('#message-tmpl').html(),
     	render: function() {
-            var msg = this.model.get('sender') + ': ' + this.model.get('text');
-            $(this.el).html(msg);
+            var context = {
+                sender: this.model.get('sender'),
+                text: this.model.get('text')
+            };
+            var html = Mustache.to_html(this.tmpl, context);
+            $(this.el).html(html);
             return this;
     	}
     });
@@ -75,11 +79,14 @@ $(function() {
             _.bindAll(this);
         },
 
-    	addMessage: function(message) {
-            var position = $('.output').scrollTop();
-            atBottom = $('.output')[0].scrollHeight - position
-                       == $('.output').innerHeight();
-            var position = this.$('.output').scrollTop();
+    	addMessage: function(message, single) {
+            // Expensive -- only do this on single message additions
+            if (single) {
+                var position = $('.output').scrollTop();
+                atBottom = $('.output')[0].scrollHeight - position
+                           == $('.output').innerHeight();
+                var position = this.$('.output').scrollTop();
+            }
             var view = new MessageView({model: message});
             $('.output').append(view.render().el);
             // Scroll to bottom on new message if already at bottom
@@ -98,13 +105,15 @@ $(function() {
             // Save scroll position for current frame
             if (this.focused) {
                 this.position[this.focused.get('id')] = this.$('.output').scrollTop();
-                console.log('Saving position for frame ' + frame.get('id'));
             }
             this.focused = frame;
             this.$('.output').empty();
             this.$('.nicks').empty();
 
-            frame.stream.each(this.addMessage);
+            var self = this;
+            frame.stream.each(function(message) {
+                self.addMessage(message, false);
+            });
             frame.participants.each(this.addNick);
             if (frame.get('id') == 'status')
                 this.$('.nicks').hide();

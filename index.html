@@ -30,6 +30,11 @@
     </div>
 
     <!-- Mustache templates -->
+    <script id="message-tmpl" type="text/html">
+        {{#sender}}<span class="sender">{{sender}}</span>{{/sender}}
+        <span class="text {{^sender}}no-sender{{/sender}}">{{text}}</span>
+    </script>
+
     <script id="tab-tmpl" type="text/html">
         <a class="name {{type}}">{{text}}</a>
         {{^isStatus}}

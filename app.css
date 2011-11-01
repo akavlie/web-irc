@@ -61,24 +61,34 @@ header .frames li .name {
 }
 */
 
-header .frames li .close-frame {
-    cursor: pointer;
-    background: #0069d6 url(images/close.png) no-repeat center center;
-    width: 18px;
-    height: 30px;
-    border-radius: 0 3px 3px 0;
-}
-
 .frame {
     position: relative;
     margin-right: 75px;
 }
 
 .frame .output {
-    border: 1px solid black;
+    border: 1px solid #444;
     padding: 5px;
     margin-bottom: 5px;
     overflow: auto;
+}
+
+.output .sender {
+    color: #444;
+    display: block;
+    float: left;
+    width: 100px;
+    text-align: right;
+}
+
+.output .text {
+    color: #222;
+    display: block;
+    margin-left: 115px;
+}
+
+.output .text.no-sender {
+    margin-left: 0;
 }
 
 .frame .nicks {
@@ -94,17 +104,19 @@ header .frames li .close-frame {
 #prime-input {
     font-size: 15px;
     position: relative;
-    width: 100%;
+    width: 99%;
     bottom: 0;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
 }
 
 /* Twitter Bootstrap overrides
 ----------------------------------------------------------------------*/
 
 .pills > li { margin-right: 8px;}
+.pills > li > * { float: left; }
+
 .pills > li > a {
+    cursor: pointer;
+    background: #f2f2f2;
     padding: 0 12px;
     margin: 0 1px 0 0;
     border-radius: 3px;
@@ -114,5 +126,18 @@ header .frames li .close-frame {
     border-radius: 3px 0 0 3px;
 }
 
+.pills > li > .close-frame {
+    cursor: pointer;
+    background: #f2f2f2 url(images/close.png) no-repeat center center;
+    width: 18px;
+    height: 30px;
+    border-radius: 0 3px 3px 0;
+}
 
-.pills > li > * { float: left; }
+.pills .active .close-frame {
+    background-color: #0069d6;
+}
+
+.pills .close-frame:hover {
+    background-color: #00438a;
+}
