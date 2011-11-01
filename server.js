@@ -4,6 +4,9 @@ var server = require('http').createServer(handler),
 	url = require('url'),
 	irc = require('irc');
 
+var HOST = 'localhost',
+    PORT = 8337;
+
 // HTTP handler
 function handler(req, res) {
 	path = url.parse(req.url).pathname;
@@ -31,7 +34,9 @@ function handler(req, res) {
     });
 }
 
-server.listen(8337);
+server.listen(PORT, HOST);
+console.log('Server running at http://' + HOST + ':' + PORT);
+
 
 // Socket.IO
 io.sockets.on('connection', function(socket) {
