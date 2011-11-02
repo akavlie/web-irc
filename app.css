@@ -2,6 +2,7 @@ html, body {
     height: 100%;
     padding: 0;
     margin: 0;
+    overflow-y: hidden;
 }
 
 /*
@@ -66,12 +67,30 @@ header .frames li .name {
     margin-right: 75px;
 }
 
+.frame .wrapper {
+    position: relative;
+}
+
 .frame .output {
+    font-size: 14px;
     border: 1px solid #444;
     padding: 5px;
     margin-bottom: 5px;
     overflow: auto;
+    position: relative;
+    z-index: 10;
 }
+
+.frame.channel .gutter {
+    position: absolute;
+    background-color: #e2e2e2;
+    border-right: 1px solid #888;
+    width: 110px;
+    left: 0;
+    top: 0;
+    height: 100%;
+}
+
 
 .output .sender {
     color: #444;
@@ -79,12 +98,14 @@ header .frames li .name {
     float: left;
     width: 100px;
     text-align: right;
+    z-index: 10;
 }
 
 .output .text {
     color: #222;
     display: block;
     margin-left: 115px;
+    margin-bottom: 4px;
 }
 
 .output .text.no-sender {
@@ -138,6 +159,7 @@ header .frames li .name {
     background-color: #0069d6;
 }
 
-.pills > li:hover > * {
+.pills > li:hover > a,
+.pills > li:hover > .close-frame {
     background-color: #00438a;
 }

@@ -127,6 +127,12 @@ $(function() {
                 this.$('.nicks').hide();
             else
                 this.$('.nicks').show();
+            if (frame.get('type') == 'channel')
+                this.el.addClass('channel');
+            else
+                this.el.removeClass('channel');
+                
+
             this.$('.output').scrollTop(this.position[frame.get('name')] || 0);
 
             // Only the selected frame should send messages
