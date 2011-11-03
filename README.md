@@ -20,20 +20,19 @@ The app is still in its early stages. Potential contributors should find plenty 
 
 Here's what works:
 
-- Join (hardcoded) network, see MOTD
-- Join (sample list of) channels
+- Choose nick/network/channel(s) to use at login
+- Join channels
 - Send messages to channels
 - Switch between channel tabs, see chat output
 - Leave channels
+- (Some) / commands
 
 Here's (a partial list of) what doesn't work yet:
 
 - Status messages
 - Private messages
-- / commands in input field
-- Choose network & nick to use at login
-- Channel topics & member lists
-- Listing channels (node-irc support needed for this)
+- Channel topics
+- Listing channels
 
 Design/UI/UX help also **desperately needed**.
 
