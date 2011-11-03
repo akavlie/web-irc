@@ -32,6 +32,38 @@
         </div>
     </div>
 
+    <div id="connect" class="modal">
+        <div class="modal-header">
+            <h3>Connect to IRC</h3>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="clearfix">
+                    <label for="connect-nick">Nickname</label>
+                    <div class="input">
+                        <input type="text" id="connect-nick" name="nick">
+                    </div>
+                </div>
+                <div class="clearfix">
+                    <label for="connect-server">IRC Server</label>
+                    <div class="input">
+                        <input type="text" id="connect-server" name="server">
+                    </div>
+                </div>
+                <div class="clearfix">
+                    <label for="channels">Channels</label>
+                    <div class="input">
+                        <input type="text" id="connect-channels" name="channels">
+                        <span class="help-block">Separate multiple channels with spaces</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn primary">Connect</a>
+        </div>
+    </div>
+
     <!-- Mustache templates -->
     <script id="message-tmpl" type="text/html">
         {{#sender}}<span class="sender">{{sender}}</span>{{/sender}}
@@ -51,6 +83,7 @@
     <script src="js/mustache.js"></script>
     <script src="js/underscore-min.js"></script>
     <script src="js/backbone.js"></script>
+    <script src="js/bootstrap/bootstrap-modal.js"></script>
 
     <script src="js/util.js"></script>
     <script src="app.js"></script>

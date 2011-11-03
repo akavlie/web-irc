@@ -1,4 +1,6 @@
 $(function() {
+    // Our global object
+    window.irc = {};
 
     // socket.io init
     var socket = io.connect('http://localhost');
@@ -22,10 +24,6 @@ $(function() {
     var Participants = Backbone.Collection.extend({
         model: Person
     });
-
-    // temporary -- hardcoding to correspond with server
-    // TODO -- do this better
-    var me = new Person({nick: 'aktest'});
 
     var Frame = Backbone.Model.extend({
         // expected properties:
@@ -176,7 +174,7 @@ $(function() {
             console.log('View setting active status');
             $(this.el).addClass('active')
                 .siblings().removeClass('active');
-            frameWindow.focus(this.model);
+            irc.frameWindow.focus(this.model);
         },
 
         render: function() {
@@ -209,7 +207,7 @@ $(function() {
         },
 
         events: {
-            'keypress #prime-input': 'parseInput'
+            'keypress #prime-input': 'parseInput',
         },
 
         addTab: function(frame) {
@@ -222,8 +220,6 @@ $(function() {
             socket.emit('join', name);
         },
 
-        // Should be launch point for parsing / commands and such
-        // in due time
         parseInput: function(e) {
             if (e.keyCode != 13) return;
             var frame = frameWindow.focused,
@@ -245,6 +241,8 @@ $(function() {
 
         render: function() {
             // Dynamically assign height
+            this.el.show();
+
             $(window).resize(function() {
                 sizeContent($('.frame .output'));
                 sizeContent($('.frame .nicks'));
@@ -253,11 +251,53 @@ $(function() {
 
     });
 
-    var frameWindow = new FrameView,
-        app = new AppView;
-    
-    // Create the status "frame"
-    frames.add({name: 'status', type: 'status'});
+    var ConnectView = Backbone.View.extend({
+        el: $('#connect'),
+        events: {
+            'click .btn': 'connect',
+            'keypress': 'connectOnEnter'
+        },
+
+        initialize: function() {
+            _.bindAll(this);
+            this.render();
+        },
+        
+        render: function() {
+            this.el.modal({backdrop: true, show: true});
+        },
+
+        connectOnEnter: function(e) {
+            if (e.keyCode != 13) return;
+            this.connect();
+        },
+
+        connect: function(e) {
+            e && e.preventDefault();
+            
+            var connectInfo = {
+                nick: $('#connect-nick').val(),
+                server: $('#connect-server').val(),
+                channels: $('#connect-channels').val().split(' ')
+            };
+
+            socket.emit('connect', connectInfo);
+            $('#connect').modal('hide');
+
+            irc.me = new Person({nick: connectInfo.nick});
+
+            irc.frameWindow = new FrameView;
+            irc.app = new AppView;
+            // Create the status "frame"
+            frames.add({name: 'status', type: 'status'});
+
+            sizeContent($('.frame .output'));
+            sizeContent($('.frame .nicks'));
+        }
+        
+    });
+
+    var connect = new ConnectView;
 
     // Set output window to full height, minus other elements
     function sizeContent(sel) {
@@ -268,13 +308,10 @@ $(function() {
         sel.height(newHeight);
     } 
 
-    sizeContent($('.frame .output'));
-    sizeContent($('.frame .nicks'));
-
     // VERY TEMPORARY -- JUST FOR TESTING
     $('#sidebar .frames li').click(function() {
         var name = $(this).text();
-        app.joinChannel(name);
+        irc.app.joinChannel(name);
     });
 
 
@@ -293,22 +330,21 @@ $(function() {
 
     socket.on('join', function(data) {
         console.log('Join event received for ' + data.channel + ' - ' + data.nick);
-        if (data.nick == me.get('nick')) {
+        if (data.nick == irc.me.get('nick')) {
             frames.add({name: data.channel});
         }
     });
 
     socket.on('part', function(data) {
         console.log('Part event received for ' + data.channel + ' - ' + data.nick);
-        if (data.nick == me.get('nick')) {
+        if (data.nick == irc.me.get('nick')) {
             frames.getByName(data.channel).part();
         }
     });
 
     socket.on('names', function(data) {
         frame = frames.getByName(data.channel);
-        console.log(data.nicks);
-        console.log(frame);
+        console.log(data);
         for (var nick in data.nicks) {
             frame.participants.add({nick: nick, opStatus: data.nicks[nick]});
         }

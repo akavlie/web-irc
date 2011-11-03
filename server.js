@@ -40,10 +40,6 @@ console.log('Server running at http://' + HOST + ':' + PORT);
 
 // Socket.IO
 io.sockets.on('connection', function(socket) {
-    // IRC client
-    var client = new irc.Client('irc.freenode.net', 'aktest', {
-        channels: []
-    });
 
     // Events to signal TO the front-end
     var events = {
@@ -54,28 +50,35 @@ io.sockets.on('connection', function(socket) {
         'motd': ['motd']
     };
 
-    // Socket events sent FROM the front-end
-    socket.on('join', function(name) { client.join(name); });
-    socket.on('part', function(name) { client.part(name); });
-    socket.on('say', function(data) { client.say(data.target, data.message); });
-    socket.on('command', function(text) { console.log(text); client.send(text); });
-    socket.on('disconnect', function() { client.disconnect(); })
-
-    // Add a listener on client for the given event & argument names
-    var activateListener = function(event, argNames) {
-        client.addListener(event, function() {
-            console.log('Event ' + event + ' sent');
-            // Associate specified names with callback arguments
-            // to avoid getting tripped up on the other side
-            var callbackArgs = arguments;
-            args = {};
-            argNames.forEach(function(arg, index) {
-                args[arg] = callbackArgs[index];
-            });
-            console.log(args);
-            socket.emit(event, args);
+    socket.on('connect', function(data) {
+        var client = new irc.Client(data.server, data.nick, {
+            channels: data.channels
         });
-    };
 
-    for (var event in events) { activateListener(event, events[event]); }
+        // Socket events sent FROM the front-end
+        socket.on('join', function(name) { client.join(name); });
+        socket.on('part', function(name) { client.part(name); });
+        socket.on('say', function(data) { client.say(data.target, data.message); });
+        socket.on('command', function(text) { console.log(text); client.send(text); });
+        socket.on('disconnect', function() { client.disconnect(); });
+
+        
+        // Add a listener on client for the given event & argument names
+        var activateListener = function(event, argNames) {
+            client.addListener(event, function() {
+                console.log('Event ' + event + ' sent');
+                // Associate specified names with callback arguments
+                // to avoid getting tripped up on the other side
+                var callbackArgs = arguments;
+                args = {};
+                argNames.forEach(function(arg, index) {
+                    args[arg] = callbackArgs[index];
+                });
+                console.log(args);
+                socket.emit(event, args);
+            });
+        };
+
+        for (var event in events) { activateListener(event, events[event]); }
+    });
 });
