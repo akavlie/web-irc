@@ -82,6 +82,7 @@ $(function() {
     var MessageView = Backbone.View.extend({
         tmpl: $('#message-tmpl').html(),
         initialize: function() {
+            this.el.className = this.model.get('type');
             this.render();
         },
 
@@ -115,8 +116,7 @@ $(function() {
                 var position = this.$('#output').scrollTop();
             }
             var view = new MessageView({model: message});
-            var el = view.make('div', {className: message.get('type')});
-            $('#output').append(el);
+            $('#output').append(view.el);
             // Scroll to bottom on new message if already at bottom
             if (atBottom) {
                 $('#output').scrollTop(position + 100);
@@ -377,7 +377,7 @@ $(function() {
     });
 
     socket.on('names', function(data) {
-        frame = frames.getByName(data.channel);
+        var frame = frames.getByName(data.channel);
         console.log(data);
         for (var nick in data.nicks) {
             frame.participants.add({nick: nick, opStatus: data.nicks[nick]});
