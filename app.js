@@ -57,6 +57,7 @@ $(function() {
  
     });
 
+    // hoisted to window for now, for ease of debugging
     window.frames = new FrameList;
 
 
@@ -222,7 +223,7 @@ $(function() {
 
         parseInput: function(e) {
             if (e.keyCode != 13) return;
-            var frame = frameWindow.focused,
+            var frame = irc.frameWindow.focused,
                 input = this.input.val();
 
             if (input.indexOf('/') === 0) {
@@ -265,6 +266,7 @@ $(function() {
         
         render: function() {
             this.el.modal({backdrop: true, show: true});
+            $('#connect-nick').focus();
         },
 
         connectOnEnter: function(e) {
