@@ -63,16 +63,16 @@ header .frames li .name {
 }
 */
 
-.frame {
+#frame {
     position: relative;
     margin-right: 75px;
 }
 
-.frame .wrapper {
+#frame .wrapper {
     position: relative;
 }
 
-.frame .output {
+#frame #output {
     font-size: 14px;
     border: 1px solid #444;
     padding: 5px;
@@ -82,7 +82,7 @@ header .frames li .name {
     z-index: 10;
 }
 
-.frame.channel .gutter {
+#frame .gutter {
     position: absolute;
     background-color: #e2e2e2;
     border-right: 1px solid #888;
@@ -92,8 +92,16 @@ header .frames li .name {
     height: 100%;
 }
 
+#frame.status .gutter {
+    display: none;
+}
 
-.output .sender {
+/* Special message types */
+#output .error {
+    background-color: red;
+}
+
+#output .sender {
     color: #444;
     display: block;
     float: left;
@@ -102,18 +110,18 @@ header .frames li .name {
     z-index: 10;
 }
 
-.output .text {
+#output .text {
     color: #222;
     display: block;
     margin-left: 115px;
     margin-bottom: 4px;
 }
 
-.output .text.no-sender {
+#frame.status .text.no-sender {
     margin-left: 0;
 }
 
-.frame .nicks {
+#frame .nicks {
     float: right;
     width: 200px;
     overflow: auto;

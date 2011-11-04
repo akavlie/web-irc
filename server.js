@@ -47,7 +47,8 @@ io.sockets.on('connection', function(socket) {
         'part': ['channel', 'nick'],
         'names': ['channel', 'nicks'],
         'message': ['from', 'to', 'text'],
-        'motd': ['motd']
+        'motd': ['motd'],
+        'error': ['message']
     };
 
     socket.on('connect', function(data) {
@@ -62,7 +63,7 @@ io.sockets.on('connection', function(socket) {
         socket.on('command', function(text) { console.log(text); client.send(text); });
         socket.on('disconnect', function() { client.disconnect(); });
 
-        
+
         // Add a listener on client for the given event & argument names
         var activateListener = function(event, argNames) {
             client.addListener(event, function() {

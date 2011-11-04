@@ -12,6 +12,9 @@ $(function() {
         // expected properties:
         // - sender
         // - text
+        defaults: {
+            'type': 'message'
+        }
     });
 
     var Stream = Backbone.Collection.extend({
@@ -28,15 +31,14 @@ $(function() {
     var Frame = Backbone.Model.extend({
         // expected properties:
         // - name
-        defaults: {'type': 'channel'},
+        defaults: {
+            'type': 'channel',
+            'active': true
+        },
+
         initialize: function() {
             this.stream = new Stream;
             this.participants = new Participants;
-        },
-
-        setActive: function() {
-            console.log('Setting ' + this.get('name') + ' as the active frame.');
-            // More stuff will go here
         },
 
         part: function() {
@@ -51,8 +53,22 @@ $(function() {
 
         getByName: function(name) {
             return this.detect(function(frame) {
-                return frame.get('name') === name;
+                return frame.get('name') == name;
             });
+        },
+
+        getActive: function() {
+            return this.detect(function(frame) {
+                return frame.get('active') == true;
+            });
+        },
+
+        setActive: function(frame) {
+            this.each(function(frm) {
+                frm.set({active: false});
+            });
+
+            frame.set({active: true});
         }
  
     });
@@ -65,6 +81,10 @@ $(function() {
     // =====
     var MessageView = Backbone.View.extend({
         tmpl: $('#message-tmpl').html(),
+        initialize: function() {
+            this.render();
+        },
+
     	render: function() {
             var context = {
                 sender: this.model.get('sender'),
@@ -77,7 +97,7 @@ $(function() {
     });
 
     var FrameView = Backbone.View.extend({
-        el: $('.frame'),
+        el: $('#frame'),
         // to track scroll position
         position: {},
 
@@ -89,16 +109,17 @@ $(function() {
     	addMessage: function(message, single) {
             // Expensive -- only do this on single message additions
             if (single) {
-                var position = $('.output').scrollTop();
-                atBottom = $('.output')[0].scrollHeight - position
-                           == $('.output').innerHeight();
-                var position = this.$('.output').scrollTop();
+                var position = $('#output').scrollTop();
+                atBottom = $('#output')[0].scrollHeight - position
+                           == $('#output').innerHeight();
+                var position = this.$('#output').scrollTop();
             }
             var view = new MessageView({model: message});
-            $('.output').append(view.render().el);
+            var el = view.make('div', {className: message.get('type')});
+            $('#output').append(el);
             // Scroll to bottom on new message if already at bottom
             if (atBottom) {
-                $('.output').scrollTop(position + 100);
+                $('#output').scrollTop(position + 100);
             }
     	},
 
@@ -109,12 +130,13 @@ $(function() {
 
         // Switch focus to a different frame
         focus: function(frame) {
-            // Save scroll position for current frame
+            // Save scroll position for frame before switching
             if (this.focused) {
-                this.position[this.focused.get('name')] = this.$('.output').scrollTop();
+                this.position[this.focused.get('name')] = this.$('#output').scrollTop();
             }
             this.focused = frame;
-            this.$('.output').empty();
+            frames.setActive(this.focused);
+            this.$('#output').empty();
             this.$('.nicks').empty();
 
             var self = this;
@@ -126,13 +148,9 @@ $(function() {
                 this.$('.nicks').hide();
             else
                 this.$('.nicks').show();
-            if (frame.get('type') == 'channel')
-                this.el.addClass('channel');
-            else
-                this.el.removeClass('channel');
-                
+            $(this.el).removeClass().addClass(frame.get('type'));
 
-            this.$('.output').scrollTop(this.position[frame.get('name')] || 0);
+            this.$('#output').scrollTop(this.position[frame.get('name')] || 0);
 
             // Only the selected frame should send messages
             frames.each(function(frm) {
@@ -245,8 +263,8 @@ $(function() {
             this.el.show();
 
             $(window).resize(function() {
-                sizeContent($('.frame .output'));
-                sizeContent($('.frame .nicks'));
+                sizeContent($('#frame #output'));
+                sizeContent($('#frame .nicks'));
             });
         }
 
@@ -293,13 +311,25 @@ $(function() {
             // Create the status "frame"
             frames.add({name: 'status', type: 'status'});
 
-            sizeContent($('.frame .output'));
-            sizeContent($('.frame .nicks'));
+            sizeContent($('#frame #output'));
+            sizeContent($('#frame .nicks'));
         }
         
     });
 
     var connect = new ConnectView;
+
+    // UTILS
+    // =====
+    function humanizeError(message) {
+        var text = '';
+        switch (message.command) {
+            case 'err_unknowncommand':
+                text = 'That is not a known IRC command.';
+                break;
+        }
+        return text;
+    }
 
     // Set output window to full height, minus other elements
     function sizeContent(sel) {
@@ -311,12 +341,14 @@ $(function() {
     } 
 
     // VERY TEMPORARY -- JUST FOR TESTING
-    $('#sidebar .frames li').click(function() {
+    $('#sidebar #frames li').click(function() {
         var name = $(this).text();
         irc.app.joinChannel(name);
     });
 
 
+    // SOCKET EVENTS
+    // =============
     socket.on('message', function(msg) {
         frame = frames.getByName(msg.to);
         if (frame) {
@@ -350,6 +382,13 @@ $(function() {
         for (var nick in data.nicks) {
             frame.participants.add({nick: nick, opStatus: data.nicks[nick]});
         }
+    });
+
+    socket.on('error', function(data) {
+        console.log(data.message);
+        frame = frames.getActive();
+        error = humanizeError(data.message);
+        frame.stream.add({text: error, type: 'error'})
     });
 
 });
