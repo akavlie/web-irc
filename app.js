@@ -9,11 +9,25 @@ $(function() {
     // MODELS & COLLECTIONS
     // ====================
     var Message = Backbone.Model.extend({
-        // expected properties:
-        // - sender
-        // - text
         defaults: {
+            // expected properties:
+            // - sender
+            // - text
             'type': 'message'
+        },
+
+        // Set output text for status messages
+        setText: function() {
+            var text = '';
+            switch (this.get('type')) {
+                case 'join':
+                    text = this.get('nick') + ' joined the channel';
+                    break;
+                case 'part':
+                    text = this.get('nick') + ' left the channel';
+                    break;
+            }
+            this.set({text: text});
         }
     });
 
@@ -22,6 +36,9 @@ $(function() {
     });
 
     var Person = Backbone.Model.extend({
+        defaults: {
+            opStatus: ''
+        }
     });
 
     var Participants = Backbone.Collection.extend({
@@ -82,7 +99,6 @@ $(function() {
     var MessageView = Backbone.View.extend({
         tmpl: $('#message-tmpl').html(),
         initialize: function() {
-            this.el.className = this.model.get('type');
             this.render();
         },
 
@@ -92,7 +108,8 @@ $(function() {
                 text: this.model.get('text')
             };
             var html = Mustache.to_html(this.tmpl, context);
-            $(this.el).html(html);
+            $(this.el).addClass(this.model.get('type'))
+                      .html(html);
             return this;
     	}
     });
@@ -103,7 +120,6 @@ $(function() {
         position: {},
 
         initialize: function() {
-            // frame.bind('add', this.focus, this);
             _.bindAll(this);
         },
 
@@ -366,6 +382,12 @@ $(function() {
         console.log('Join event received for ' + data.channel + ' - ' + data.nick);
         if (data.nick == irc.me.get('nick')) {
             frames.add({name: data.channel});
+        } else {
+            channel = frames.getByName(data.channel);
+            channel.participants.add({nick: data.nick});
+            var joinMessage = new Message({type: 'join', nick: data.nick});
+            joinMessage.setText();
+            channel.stream.add(joinMessage);
         }
     });
 
@@ -373,6 +395,12 @@ $(function() {
         console.log('Part event received for ' + data.channel + ' - ' + data.nick);
         if (data.nick == irc.me.get('nick')) {
             frames.getByName(data.channel).part();
+        } else {
+            channel = frames.getByName(data.channel);
+            channel.participants.add({nick: data.nick});
+            var partMessage = new Message({type: 'part', nick: data.nick});
+            partMessage.setText();
+            channel.stream.add(partMessage);
         }
     });
 
