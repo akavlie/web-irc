@@ -42,7 +42,12 @@ $(function() {
     });
 
     var Participants = Backbone.Collection.extend({
-        model: Person
+        model: Person,
+        getByNick: function(nick) {
+            return this.detect(function(person) {
+                return person.get('nick') == nick;
+            });
+        }
     });
 
     var Frame = Backbone.Model.extend({
@@ -397,7 +402,7 @@ $(function() {
             frames.getByName(data.channel).part();
         } else {
             channel = frames.getByName(data.channel);
-            channel.participants.add({nick: data.nick});
+            channel.participants.getByNick(data.nick).destroy();
             var partMessage = new Message({type: 'part', nick: data.nick});
             partMessage.setText();
             channel.stream.add(partMessage);
