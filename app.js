@@ -128,6 +128,46 @@ $(function() {
     	}
     });
 
+    // Nick in the sidebar
+    var NickListView = Backbone.View.extend({
+        el: $('.nicks'),
+        initialize: function() {
+            _.bindAll(this);
+        },
+
+        // this is a temp. hack
+        tmpl: function(opStatus, nick) {
+            return '<div>' + opStatus + ' ' + nick + '</div>'
+        },
+
+        switchChannel: function(ch) {
+            ch.participants.bind('add', this.addOne, this);
+            ch.participants.bind('change', this.changeNick, this);
+        },
+
+        addOne: function(p) {
+            var text = this.tmpl(p.get('opStatus'), p.get('nick'));
+            $(this.el).append(text);
+        },
+
+        addAll: function(participants) {
+            var self = this;
+            var nicks = [];
+            participants.each(function(p) {
+                var text = self.tmpl(p.get('opStatus'), p.get('nick'));
+                nicks.push(text);
+            });
+            $(this.el).html(nicks.join('\n'));
+        },
+
+        changeNick: function() {
+            console.log('Change of nick seen');
+            console.log(arguments);
+        }
+        
+    });
+    var nickList = new NickListView;
+
     var FrameView = Backbone.View.extend({
         el: $('#frame'),
         // to track scroll position
@@ -153,11 +193,6 @@ $(function() {
             }
     	},
 
-        addNick: function(person) {
-            // TODO: Use a template here!
-            this.$('.nicks').append('<div>' + person.get('opStatus') + person.get('nick') + '</div>');
-        },
-
         // Switch focus to a different frame
         focus: function(frame) {
             // Save scroll position for frame before switching
@@ -167,13 +202,14 @@ $(function() {
             this.focused = frame;
             frames.setActive(this.focused);
             this.$('#output').empty();
-            this.$('.nicks').empty();
 
             var self = this;
             frame.stream.each(function(message) {
                 self.addMessage(message, false);
             });
-            frame.participants.each(this.addNick);
+
+            nickList.addAll(frame.participants);
+
             if (frame.get('name') == 'status')
                 this.$('.nicks').hide();
             else
@@ -185,10 +221,10 @@ $(function() {
             // Only the selected frame should send messages
             frames.each(function(frm) {
                 frm.stream.unbind('add');
-                frm.participants.unbind('add');
+                frm.participants.unbind();
             });
             frame.stream.bind('add', this.addMessage, this);
-            frame.participants.bind('add', this.addNick, this);
+            nickList.switchChannel(frame);
         },
 
         updateNicks: function(model, nicks) {
