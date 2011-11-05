@@ -26,6 +26,9 @@ $(function() {
                 case 'part':
                     text = this.get('nick') + ' left the channel';
                     break;
+                case 'nick':
+                    text = this.get('oldNick') + ' is now known as ' + this.get('newNick');
+                    break;
             }
             this.set({text: text});
         }
@@ -91,6 +94,12 @@ $(function() {
             });
 
             frame.set({active: true});
+        },
+
+        getChannels: function() {
+            return this.filter(function(frame) {
+                return frame.get('type') == 'channel';
+            });
         }
  
     });
@@ -407,6 +416,28 @@ $(function() {
             partMessage.setText();
             channel.stream.add(partMessage);
         }
+    });
+
+    socket.on('nick', function(data) {
+        // Update my info, if it's me
+        if (data.oldNick == irc.me.get('nick')) {
+            irc.me.set({nick: data.newNick});
+        }
+
+        // Set new name in all channels
+        data.channels.forEach(function(ch) {
+            var channel = frames.getByName(ch);
+            // Change nick in user list
+            channel.participants.getByNick(data.oldNick).set({nick: data.newNick});
+            // Send nick change message to channel stream
+            var nickMessage = new Message({
+                type: 'nick',
+                oldNick: data.oldNick,
+                newNick: data.newNick
+            });
+            nickMessage.setText()
+            channel.stream.add(nickMessage);
+        });
     });
 
     socket.on('names', function(data) {

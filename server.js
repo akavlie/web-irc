@@ -45,6 +45,7 @@ io.sockets.on('connection', function(socket) {
     var events = {
         'join': ['channel', 'nick'],
         'part': ['channel', 'nick'],
+        'nick': ['oldNick', 'newNick', 'channels'],
         'names': ['channel', 'nicks'],
         'message': ['from', 'to', 'text'],
         'motd': ['motd'],
