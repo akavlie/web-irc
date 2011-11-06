@@ -65,3 +65,11 @@ if ( !Array.prototype.forEach ) {
     // 8. return undefined
   };
 }
+
+// UTILITY FUNCTIONS
+// =================
+
+// Replaces oldString with newString in the string haystack
+function replaceString(oldString, newString, haystack) {
+    return haystack.split(oldString).join(newString);
+}

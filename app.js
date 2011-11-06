@@ -210,10 +210,10 @@ $(function() {
 
             nickList.addAll(frame.participants);
 
-            if (frame.get('name') == 'status')
-                this.$('.nicks').hide();
-            else
+            if (frame.get('type') == 'channel')
                 this.$('.nicks').show();
+            else
+                this.$('.nicks').hide();
             $(this.el).removeClass().addClass(frame.get('type'));
 
             this.$('#output').scrollTop(this.position[frame.get('name')] || 0);
@@ -243,14 +243,30 @@ $(function() {
 
         events: {
             'click': 'setActive',
-            'click .close-frame': 'part'
+            'click .close-frame': 'close'
         },
 
+        // Send PART command to server
         part: function() {
-            socket.emit('part', this.model.get('name'));
+            if (this.model.get('type') === 'channel') {
+                socket.emit('part', this.model.get('name'));
+            } else {
+                // PMs don't need an explicit PART
+                this.model.destroy();
+            }
         },
 
+        // Close frame
         close: function() {
+            // Focus on next frame if this one has the focus
+            if ($(this.el).hasClass('active')) {
+                // Go to previous frame unless it's status
+                if ($(this.el).prev().text().trim() !== 'status') {
+                    $(this.el).prev().click();
+                } else {
+                    $(this.el).next().click();
+                }
+            }
             $(this.el).remove();
         },
 
@@ -276,8 +292,6 @@ $(function() {
             $(this.el).html(html);
             return this;
         }
-
-        
     });
 
     var AppView = Backbone.View.extend({
@@ -292,7 +306,7 @@ $(function() {
         },
 
         events: {
-            'keypress #prime-input': 'parseInput',
+            'keypress #prime-input': 'sendInput',
         },
 
         addTab: function(frame) {
@@ -305,20 +319,44 @@ $(function() {
             socket.emit('join', name);
         },
 
-        parseInput: function(e) {
+        // Map common IRC commands to standard (RFC 1459)
+        parse: function(text) {
+            var command = text.split(' ')[0];
+            console.log(command);
+            var revised = '';
+            switch (command) {
+                case 'msg':
+                    revised = 'privmsg';
+                    break;
+                default:
+                    revised = command;
+                    break;
+            }
+            return replaceString(command, revised, text);
+        },
+
+        sendInput: function(e) {
             if (e.keyCode != 13) return;
             var frame = irc.frameWindow.focused,
                 input = this.input.val();
 
             if (input.indexOf('/') === 0) {
                 console.log('IRC command detected -- sending to server');
-                socket.emit('command', input.substr(1));
+                var parsed = this.parse(input.substr(1))
+                socket.emit('command', parsed);
+                // special case -- no output emitted, yet we want a new frame
+                var msgParts = parsed.split(' ');
+                if (msgParts[0].toLowerCase() === 'privmsg') {
+                    pm = frames.getByName(msgParts[1]) || new Frame({type: 'pm', name: msg.nick});
+                    pm.stream.add({sender: msg.nick, text: msg.text})
+                    frames.add(pm);
+                }
             } else {
                 socket.emit('say', {
                     target: frame.get('name'),
                     message: input
                 });
-                frame.stream.add({sender: me.get('nick'), text: input});
+                frame.stream.add({sender: irc.me.get('nick'), text: input});
             }
 
             this.input.val('');
@@ -416,11 +454,21 @@ $(function() {
     // SOCKET EVENTS
     // =============
     socket.on('message', function(msg) {
+        // Filter out messages not aimed at a channel or status (i.e. PMs)
+        if (msg.to.indexOf('#') !== 0 &&
+            msg.to.indexOf('&') !== 0 &&
+            msg.to !== 'status') return;
         frame = frames.getByName(msg.to);
         if (frame) {
         	frame.stream.add({sender: msg.from, text: msg.text});
         }
     });
+
+    socket.on('pm', function(msg) {
+        pm = frames.getByName(msg.nick) || new Frame({type: 'pm', name: msg.nick});
+        pm.stream.add({sender: msg.nick, text: msg.text})
+        frames.add(pm);
+    })
 
     socket.on('motd', function(data) {
         data.motd.split('\n').forEach(function(line) {
@@ -471,7 +519,7 @@ $(function() {
                 oldNick: data.oldNick,
                 newNick: data.newNick
             });
-            nickMessage.setText()
+            nickMessage.setText();
             channel.stream.add(nickMessage);
         });
     });

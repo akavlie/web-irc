@@ -48,6 +48,7 @@ io.sockets.on('connection', function(socket) {
         'nick': ['oldNick', 'newNick', 'channels'],
         'names': ['channel', 'nicks'],
         'message': ['from', 'to', 'text'],
+        'pm': ['nick', 'text'],
         'motd': ['motd'],
         'error': ['message']
     };
