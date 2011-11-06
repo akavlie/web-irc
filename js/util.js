@@ -69,7 +69,16 @@ if ( !Array.prototype.forEach ) {
 // UTILITY FUNCTIONS
 // =================
 
-// Replaces oldString with newString in the string haystack
-function replaceString(oldString, newString, haystack) {
-    return haystack.split(oldString).join(newString);
-}
+window.irc = (function(module) {
+    module.utils = {
+        // Replaces oldString with newString at beginning of text
+        swapCommand: function(oldString, newString, text) {
+            if (text.substring(0, oldString.length) === oldString)
+                return newString + text.substring(oldString.length, text.length);
+            else
+                throw 'String "' + oldString + '" not found at beginning of text';
+        }
+    }
+
+    return module
+})(window.irc || {});

@@ -1,6 +1,6 @@
 $(function() {
     // Our global object
-    window.irc = {};
+    window.irc = window.irc || {};
 
     // socket.io init
     var socket = io.connect('http://localhost');
@@ -332,7 +332,7 @@ $(function() {
                     revised = command;
                     break;
             }
-            return replaceString(command, revised, text);
+            return irc.utils.swapCommand(command, revised, text);
         },
 
         sendInput: function(e) {
