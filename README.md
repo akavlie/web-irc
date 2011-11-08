@@ -25,12 +25,11 @@ Here's what works:
 - Send messages to channels
 - Switch between channel tabs, see chat output
 - Leave channels
-- (Some) / commands
+- Private messages
 
 Here's (a partial list of) what doesn't work yet:
 
 - Status messages
-- Private messages
 - Channel topics
 - Listing channels
 
