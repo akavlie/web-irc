@@ -30,13 +30,8 @@ header {
     margin: 0;
 }
 
-#sidebar .frames {
-    display: block;
-}
-
 #frame {
     position: relative;
-    margin-right: 75px;
 }
 
 #frame .wrapper {
