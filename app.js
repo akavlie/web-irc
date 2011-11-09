@@ -180,18 +180,23 @@ $(function() {
     	addMessage: function(message, single) {
             // Expensive -- only do this on single message additions
             if (single) {
-                var position = $('#output').scrollTop();
-                atBottom = $('#output')[0].scrollHeight - position
-                           == $('#output').innerHeight();
-                var position = this.$('#output').scrollTop();
+                var position = $('#output #messages').scrollTop();
+                var atBottom = $('#output #messages')[0].scrollHeight - position
+                             == $('#output #messages').innerHeight();
+                var position = this.$('#output #messages').scrollTop();
             }
             var view = new MessageView({model: message});
-            $('#output').append(view.el);
+            $('#output #messages').append(view.el);
             // Scroll to bottom on new message if already at bottom
             if (atBottom) {
                 $('#output').scrollTop(position + 100);
             }
     	},
+
+        updateTopic: function(channel) {
+            this.$('#topic').text(channel.get('topic')).show();
+            $('#messages').css('top', $('#topic').outerHeight(true));
+        },
 
         // Switch focus to a different frame
         focus: function(frame) {
@@ -201,7 +206,7 @@ $(function() {
             }
             this.focused = frame;
             frames.setActive(this.focused);
-            this.$('#output').empty();
+            this.$('#output #messages').empty();
 
             var self = this;
             frame.stream.each(function(message) {
@@ -210,19 +215,28 @@ $(function() {
 
             nickList.addAll(frame.participants);
 
-            if (frame.get('type') == 'channel')
-                this.$('.nicks').show();
-            else
-                this.$('.nicks').hide();
+            if (frame.get('type') == 'channel') {
+                this.$('#sidebar').show();
+                this.$('#topic').show();
+                $('.wrapper').css('margin-right', 205);
+                $('#messages').css('top', $('#topic').outerHeight(true));
+            } else {
+                this.$('#sidebar').hide();
+                this.$('#topic').hide();
+                $('.wrapper').css('margin-right', 0);
+                $('#messages').css('top', 0);
+            }
             $(this.el).removeClass().addClass(frame.get('type'));
 
-            this.$('#output').scrollTop(this.position[frame.get('name')] || 0);
+            this.$('#output #messsages').scrollTop(this.position[frame.get('name')] || 0);
 
             // Only the selected frame should send messages
             frames.each(function(frm) {
                 frm.stream.unbind('add');
                 frm.participants.unbind();
+                frm.unbind();
             });
+            frame.bind('change:topic', this.updateTopic, this);
             frame.stream.bind('add', this.addMessage, this);
             nickList.switchChannel(frame);
         },
@@ -368,7 +382,8 @@ $(function() {
 
             $(window).resize(function() {
                 sizeContent($('#frame #output'));
-                sizeContent($('#frame .nicks'));
+                sizeContent($('#frame #sidebar'));
+                sizeContent($('#sidebar .nicks', '.stats'));
             });
         }
 
@@ -416,7 +431,8 @@ $(function() {
             frames.add({name: 'status', type: 'status'});
 
             sizeContent($('#frame #output'));
-            sizeContent($('#frame .nicks'));
+            sizeContent($('#frame #sidebar'));
+            sizeContent($('#sidebar .nicks', '.stats'));
         }
         
     });
@@ -436,11 +452,14 @@ $(function() {
     }
 
     // Set output window to full height, minus other elements
-    function sizeContent(sel) {
-        var newHeight = $('html').height() - $('header').outerHeight(true) - 
-                        $('#prime-input').outerHeight(true) - 
-                        (sel.outerHeight(true) - sel.height()) - 10;
-                        // (10 = #content padding)
+    function sizeContent(sel, additional) {
+        var newHeight = $('html').height() - $('header').outerHeight(true)
+                        - $('#prime-input').outerHeight(true)
+                        - (sel.outerHeight(true) - sel.height()) - 10;
+                        // 10 = #content padding
+        if (additional) {
+            newHeight -= $(additional).outerHeight(true);
+        }
         sel.height(newHeight);
     } 
 
@@ -464,12 +483,14 @@ $(function() {
         frames.add(pm);
     })
 
+    // Message of the Day event (on joining a server)
     socket.on('motd', function(data) {
         data.motd.split('\n').forEach(function(line) {
             frames.getByName('status').stream.add({sender: '', text: line});
         });
     });
 
+    // Join channel event
     socket.on('join', function(data) {
         console.log('Join event received for ' + data.channel + ' - ' + data.nick);
         if (data.nick == irc.me.get('nick')) {
@@ -483,6 +504,7 @@ $(function() {
         }
     });
 
+    // Part channel event
     socket.on('part', function(data) {
         console.log('Part event received for ' + data.channel + ' - ' + data.nick);
         if (data.nick == irc.me.get('nick')) {
@@ -496,6 +518,14 @@ $(function() {
         }
     });
 
+    // Set topic event
+    socket.on('topic', function(data) {
+        var channel = frames.getByName(data.channel);
+        channel.set({topic: data.topic});
+        // TODO: Show this was changed by data.nick in the channel stream
+    });
+
+    // Nick change event
     socket.on('nick', function(data) {
         // Update my info, if it's me
         if (data.oldNick == irc.me.get('nick')) {

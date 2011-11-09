@@ -38,14 +38,32 @@ header {
     position: relative;
 }
 
-#frame #output {
+#output {
     font-size: 14px;
-    border: 1px solid #444;
-    padding: 5px;
-    margin-bottom: 5px;
-    overflow: auto;
     position: relative;
+    margin-bottom: 5px;
+    border: 1px solid #888;
+}
+
+#output #topic {
+    position: relative;
+    min-height: 40px;
+    padding: 5px;
+    background-color: #e2e2e2;
+    border-bottom: 1px solid #444;
+    display: none;
+    z-index: 2;
+}
+
+#output #messages {
+    position: absolute;
+    padding: 5px;
+    overflow: auto;
     z-index: 10;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 #frame .gutter {
@@ -87,14 +105,33 @@ header {
     margin-left: 0;
 }
 
-#frame .nicks {
-    float: right;
+#sidebar {
     width: 200px;
+    margin: 0 0 5px 5px;
+    border: 1px solid #888;
+    float: right;
+    position: relative;
+    display: none;
+}
+
+#sidebar .stats {
+    position: relative;
+    top: 0;
+    height: 40px;
+    background-color: #e2e2e2;
+    border-bottom: 1px solid #888;
+    display: none;
+}
+
+#sidebar .nicks {
+    position: absolute;
     overflow: auto;
     padding: 5px;
-    margin: 0 0 5px 5px;
-    border: 1px solid gray;
-    display: none;
+    top: 0;
+    /*top: 40px;*/
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 #prime-input {

@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-	<title>Webby IRC</title>
+	<title>web-irc</title>
 
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="app.css">
@@ -14,10 +14,16 @@
         </header>
 
         <div id="frame">
-            <div class="nicks"></div>
+            <div id="sidebar">
+                <div class="stats">nick count here</div>
+                <div class="nicks"></div>
+            </div>
             <div class="wrapper">
-                <div id="output"></div>
-                <div class="gutter"></div>
+                <div id="output">
+                    <div id="topic">channel topic here</div>
+                    <div id="messages"></div>
+                    <div class="gutter"></div>
+                </div>
             </div>
             <input id="prime-input" type="text">
         </div>
