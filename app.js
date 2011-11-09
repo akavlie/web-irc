@@ -444,12 +444,6 @@ $(function() {
         sel.height(newHeight);
     } 
 
-    // VERY TEMPORARY -- JUST FOR TESTING
-    $('#sidebar #frames li').click(function() {
-        var name = $(this).text();
-        irc.app.joinChannel(name);
-    });
-
 
     // SOCKET EVENTS
     // =============

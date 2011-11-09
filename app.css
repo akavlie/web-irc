@@ -26,42 +26,13 @@ header {
     margin-bottom: 5px;
 }
 
-#sidebar {
-	float: right;
-}
-
 .frames {
     margin: 0;
 }
 
-/*
-.frames li {
-    cursor: default;
-    font-size: 14px;
-	padding: 4px 7px;
-	margin-right: 5px;
-	background: #dedede;
-}
-
-.frames li.active {
-    color: white;
-    background: #74a8f5;
-}
-*/
-
 #sidebar .frames {
     display: block;
 }
-
-/*
-header .frames li {
-    display: inline-block;
-}
-header .frames li .name {
-    padding-right: 3px;
-    border-right: 1px solid white;
-}
-*/
 
 #frame {
     position: relative;
