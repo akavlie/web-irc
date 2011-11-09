@@ -43,9 +43,9 @@ Installation
 
         curl http://npmjs.org/install.sh | sh
 
-3. Install node-irc
+3. Install dependencies
 
-        npm install node-irc
+        npm install express node-irc
 
 4. Run server
         
