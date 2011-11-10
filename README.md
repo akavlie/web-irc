@@ -26,11 +26,11 @@ Here's what works:
 - Switch between channel tabs, see chat output
 - Leave channels
 - Private messages
+- Channel topics
 
 Here's (a partial list of) what doesn't work yet:
 
 - Status messages
-- Channel topics
 - Listing channels
 
 Design/UI/UX help also **desperately needed**.
@@ -45,7 +45,7 @@ Installation
 
 3. Install dependencies
 
-        npm install express node-irc
+        npm install express irc
 
 4. Run server
         
