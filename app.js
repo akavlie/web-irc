@@ -12,8 +12,16 @@ $(function() {
         defaults: {
             // expected properties:
             // - sender
-            // - text
+            // - raw
             'type': 'message'
+        },
+
+        initialize: function() {
+            this.set({text: this.parse( irc.util.escapeHTML(this.get('raw')) )});
+        },
+
+        parse: function(text) {
+            return this._linkify(text);
         },
 
         // Set output text for status messages
@@ -31,6 +39,21 @@ $(function() {
                     break;
             }
             this.set({text: text});
+        },
+
+        // Find and link URLs
+        _linkify: function(text) {
+            // see http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+            var re = /\b((?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/gi;
+            var parsed = text.replace(re, function(url) {
+                // turn into a link
+                var href = url;
+                if (url.indexOf('http') !== 0) {
+                    href = 'http://' + url;
+                }
+                return '<a href="' + href + '" target="_blank">' + url + '</a>';
+            });
+            return parsed;
         }
     });
 
@@ -346,7 +369,7 @@ $(function() {
                     revised = command;
                     break;
             }
-            return irc.utils.swapCommand(command, revised, text);
+            return irc.util.swapCommand(command, revised, text);
         },
 
         sendInput: function(e) {
@@ -362,7 +385,7 @@ $(function() {
                 var msgParts = parsed.split(' ');
                 if (msgParts[0].toLowerCase() === 'privmsg') {
                     pm = frames.getByName(msgParts[1]) || new Frame({type: 'pm', name: msg.nick});
-                    pm.stream.add({sender: msg.nick, text: msg.text})
+                    pm.stream.add({sender: msg.nick, raw: msg.text})
                     frames.add(pm);
                 }
             } else {
@@ -370,7 +393,7 @@ $(function() {
                     target: frame.get('name'),
                     message: input
                 });
-                frame.stream.add({sender: irc.me.get('nick'), text: input});
+                frame.stream.add({sender: irc.me.get('nick'), raw: input});
             }
 
             this.input.val('');
@@ -473,20 +496,20 @@ $(function() {
             msg.to !== 'status') return;
         frame = frames.getByName(msg.to);
         if (frame) {
-        	frame.stream.add({sender: msg.from, text: msg.text});
+        	frame.stream.add({sender: msg.from, raw: msg.text});
         }
     });
 
     socket.on('pm', function(msg) {
         pm = frames.getByName(msg.nick) || new Frame({type: 'pm', name: msg.nick});
-        pm.stream.add({sender: msg.nick, text: msg.text})
+        pm.stream.add({sender: msg.nick, raw: msg.text})
         frames.add(pm);
     })
 
     // Message of the Day event (on joining a server)
     socket.on('motd', function(data) {
         data.motd.split('\n').forEach(function(line) {
-            frames.getByName('status').stream.add({sender: '', text: line});
+            frames.getByName('status').stream.add({sender: '', raw: line});
         });
     });
 
@@ -560,7 +583,7 @@ $(function() {
         console.log(data.message);
         frame = frames.getActive();
         error = humanizeError(data.message);
-        frame.stream.add({text: error, type: 'error'})
+        frame.stream.add({type: 'error', raw: error});
     });
 
 });

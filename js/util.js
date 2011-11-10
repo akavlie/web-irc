@@ -2,6 +2,7 @@
 (function(b){function c(){}for(var d="assert,clear,count,debug,dir,dirxml,error,exception,firebug,group,groupCollapsed,groupEnd,info,log,memoryProfile,memoryProfileEnd,profile,profileEnd,table,time,timeEnd,timeStamp,trace,warn".split(","),a;a=d.pop();){b[a]=b[a]||c}})((function(){try
 {console.log();return window.console;}catch(err){return window.console={};}})());
 
+
 // POLYFILLS
 // =========
 
@@ -74,14 +75,18 @@ if ( !Array.prototype.forEach ) {
 // =================
 
 window.irc = (function(module) {
-    module.utils = {
+    module.util = {
         // Replaces oldString with newString at beginning of text
         swapCommand: function(oldString, newString, text) {
             if (text.substring(0, oldString.length) === oldString)
                 return newString + text.substring(oldString.length, text.length);
             else
                 throw 'String "' + oldString + '" not found at beginning of text';
+        },
+        escapeHTML: function(text) {
+            return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         }
+ 
     }
 
     return module
