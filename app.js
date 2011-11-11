@@ -17,7 +17,9 @@ $(function() {
         },
 
         initialize: function() {
-            this.set({text: this.parse( irc.util.escapeHTML(this.get('raw')) )});
+            if (this.get('raw')) {
+                this.set({text: this.parse( irc.util.escapeHTML(this.get('raw')) )});
+            }
         },
 
         parse: function(text) {
@@ -174,12 +176,11 @@ $(function() {
         },
 
         addAll: function(participants) {
-            var self = this;
             var nicks = [];
             participants.each(function(p) {
-                var text = self.tmpl(p.get('opStatus'), p.get('nick'));
+                var text = this.tmpl(p.get('opStatus'), p.get('nick'));
                 nicks.push(text);
-            });
+            }, this);
             $(this.el).html(nicks.join('\n'));
         },
 
@@ -231,16 +232,15 @@ $(function() {
             frames.setActive(this.focused);
             this.$('#output #messages').empty();
 
-            var self = this;
             frame.stream.each(function(message) {
-                self.addMessage(message, false);
-            });
+                this.addMessage(message, false);
+            }, this);
 
             nickList.addAll(frame.participants);
 
             if (frame.get('type') == 'channel') {
                 this.$('#sidebar').show();
-                this.$('#topic').show();
+                frame.get('topic') && this.updateTopic(frame);
                 $('.wrapper').css('margin-right', 205);
                 $('#messages').css('top', $('#topic').outerHeight(true));
             } else {
