@@ -12,6 +12,11 @@ Martyn Smith's [node-irc](https://github.com/martynsmith/node-irc) on the backen
 and [Backbone.js](http://documentcloud.github.com/backbone/) and
 [jQuery](http://jquery.com/) on the frontend.
 
+Try web-irc
+-----------
+
+[Give it a spin on Nodester!](http://web-irc.nodester.com/)
+(bug reports welcome.)
 
 Status
 ------
