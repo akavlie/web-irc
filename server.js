@@ -4,7 +4,8 @@ var express = require('express'),
 	irc = require('irc');
 
 app.configure(function() {
-    app.use(express.static(__dirname + '/'));
+    app.use(app.router);
+    app.use(express.static(__dirname + '/public'));
 });
 
 app.configure('development', function() {
@@ -13,6 +14,10 @@ app.configure('development', function() {
 
 app.configure('production', function() {
     app.listen(12445);
+});
+
+app.get('/', function(req, res, next) {
+    next();
 });
 
 console.log('Express server started on port %s', app.address().port);
