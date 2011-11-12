@@ -5,8 +5,9 @@ var express = require('express'),
 
 app.configure(function() {
     app.use(express.static(__dirname + '/'));
-    app.use(express.static(__dirname + '/js'));
-    app.use(express.static(__dirname + '/images'));
+});
+
+app.configure('development', function() {
     app.listen(8337);
 });
 
