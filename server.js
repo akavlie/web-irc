@@ -59,10 +59,11 @@ io.sockets.on('connection', function(socket) {
                     args[arg] = callbackArgs[index];
                 });
                 console.log(args);
-                socket.emit(event, args);
+                socket.emit('irc:' + event, args);
             });
         };
 
         for (var event in events) { activateListener(event, events[event]); }
+        console.log('Starting IRC client; wiring up socket events.')
     });
 });
