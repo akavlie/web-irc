@@ -36,6 +36,7 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('connect', function(data) {
         var client = new irc.Client(data.server, data.nick, {
+            debug: true,
             showErrors: true,
             channels: data.channels
         });
