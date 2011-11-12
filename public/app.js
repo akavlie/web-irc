@@ -3,7 +3,8 @@ $(function() {
     window.irc = window.irc || {};
 
     // socket.io init
-    var socket = io.connect('http://localhost/');
+    // var socket = io.connect('http://localhost/');
+    var socket = io.connect();
 
 
     // MODELS & COLLECTIONS
