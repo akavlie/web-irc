@@ -545,14 +545,14 @@ $(function() {
     });
 
     // Set topic event
-    socket.on('irc:topic', function(data) {
+    socket.on('topic', function(data) {
         var channel = frames.getByName(data.channel);
         channel.set({topic: data.topic});
         // TODO: Show this was changed by data.nick in the channel stream
     });
 
     // Nick change event
-    socket.on('irc:nick', function(data) {
+    socket.on('nick', function(data) {
         // Update my info, if it's me
         if (data.oldNick == irc.me.get('nick')) {
             irc.me.set({nick: data.newNick});
@@ -574,7 +574,7 @@ $(function() {
         });
     });
 
-    socket.on('irc:names', function(data) {
+    socket.on('names', function(data) {
         var frame = frames.getByName(data.channel);
         console.log(data);
         for (var nick in data.nicks) {
@@ -582,7 +582,7 @@ $(function() {
         }
     });
 
-    socket.on('irc:error', function(data) {
+    socket.on('error', function(data) {
         console.log(data.message);
         frame = frames.getActive();
         error = humanizeError(data.message);

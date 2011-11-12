@@ -66,7 +66,7 @@ io.sockets.on('connection', function(socket) {
                     args[arg] = callbackArgs[index];
                 });
                 console.log(args);
-                socket.emit('irc:' + event, args);
+                socket.emit(event, args);
             });
         };
 
