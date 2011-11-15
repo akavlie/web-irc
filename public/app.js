@@ -203,18 +203,17 @@ $(function() {
         },
 
     	addMessage: function(message, single) {
-            // Expensive -- only do this on single message additions
+            // Only do this on single message additions
             if (single) {
-                var position = $('#output #messages').scrollTop();
-                var atBottom = $('#output #messages')[0].scrollHeight - position
-                             == $('#output #messages').innerHeight();
-                var position = this.$('#output #messages').scrollTop();
+                var position = $('#messages').scrollTop();
+                var atBottom = $('#messages')[0].scrollHeight - position
+                             == $('#messages').innerHeight();
             }
             var view = new MessageView({model: message});
-            $('#output #messages').append(view.el);
+            $('#messages').append(view.el);
             // Scroll to bottom on new message if already at bottom
             if (atBottom) {
-                $('#output').scrollTop(position + 100);
+                $('#messages').scrollTop(position + 100);
             }
     	},
 
@@ -231,7 +230,7 @@ $(function() {
             }
             this.focused = frame;
             frames.setActive(this.focused);
-            this.$('#output #messages').empty();
+            $('#messages').empty();
 
             frame.stream.each(function(message) {
                 this.addMessage(message, false);
