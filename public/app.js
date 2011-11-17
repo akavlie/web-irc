@@ -378,14 +378,13 @@ $(function() {
                 input = this.input.val();
 
             if (input.indexOf('/') === 0) {
-                console.log('IRC command detected -- sending to server');
-                var parsed = this.parse(input.substr(1))
+                var parsed = this.parse(input.substr(1));
                 socket.emit('command', parsed);
                 // special case -- no output emitted, yet we want a new frame
                 var msgParts = parsed.split(' ');
                 if (msgParts[0].toLowerCase() === 'privmsg') {
-                    pm = frames.getByName(msgParts[1]) || new Frame({type: 'pm', name: msg.nick});
-                    pm.stream.add({sender: msg.nick, raw: msg.text})
+                    pm = frames.getByName(msgParts[1]) || new Frame({type: 'pm', name: msgParts[1]});
+                    pm.stream.add({sender: irc.me.get('nick'), raw: msgParts[2]})
                     frames.add(pm);
                 }
             } else {
