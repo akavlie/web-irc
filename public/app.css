@@ -18,12 +18,27 @@ ul {
 }
 
 #content {
-	padding: 5px;
     display: none;
 }
 
 header {
-    margin-bottom: 3px;
+    position: relative;
+    padding-bottom: 3px;
+    background-color: white;
+    z-index: 2;
+}
+
+#info-bar {
+    position: relative;
+    height: 30px;
+}
+
+#info-bar .misc-actions {
+    float: right;
+}
+
+#info-bar .misc-actions li {
+
 }
 
 .frames {
@@ -36,6 +51,22 @@ header {
 
 #frame .wrapper {
     position: relative;
+}
+
+#channel-list {
+    position: absolute;
+    height: 300px;
+    width: 600px;
+    margin-left: -300px;
+    left: 50%;
+    top: -300px;
+    background-color: gray;
+    z-index: 15;
+}
+
+#channel-list .channels {
+    padding: 5px;
+    overflow: auto;
 }
 
 #output {

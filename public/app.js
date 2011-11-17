@@ -344,6 +344,7 @@ $(function() {
 
         events: {
             'keypress #prime-input': 'sendInput',
+            'click .list-channels': 'listChannels'
         },
 
         addTab: function(frame) {
@@ -396,6 +397,12 @@ $(function() {
             }
 
             this.input.val('');
+        },
+
+        listChannels: function(e) {
+            e.preventDefault();
+            $('#channel-list').animate({top: 0});
+            socket.emit('list');
         },
 
         render: function() {
@@ -580,6 +587,10 @@ $(function() {
         }
     });
 
+    socket.on('channellist_item', function(info) {
+        // console.log(info);
+    })
+    
     socket.on('error', function(data) {
         console.log(data.message);
         frame = frames.getActive();

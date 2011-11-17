@@ -36,7 +36,8 @@ io.sockets.on('connection', function(socket) {
         'message': ['from', 'to', 'text'],
         'pm': ['nick', 'text'],
         'motd': ['motd'],
-        'error': ['message']
+        'error': ['message'],
+        'channellist_item': ['channel']
     };
 
     socket.on('connect', function(data) {
@@ -51,6 +52,7 @@ io.sockets.on('connection', function(socket) {
         socket.on('part', function(name) { client.part(name); });
         socket.on('say', function(data) { client.say(data.target, data.message); });
         socket.on('command', function(text) { console.log(text); client.send(text); });
+        socket.on('list', function() { client.list(); });
         socket.on('disconnect', function() { client.disconnect(); });
 
 
