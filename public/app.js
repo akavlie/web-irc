@@ -130,8 +130,10 @@ $(function() {
  
     });
 
+
     // hoisted to window for now, for ease of debugging
     window.frames = new FrameList;
+    window.allChannels = new FrameList;
 
 
     // VIEWS
@@ -338,6 +340,7 @@ $(function() {
 
         initialize: function() {
             frames.bind('add', this.addTab, this);
+            allChannels.bind('add', this.populateList, this);
             this.input = this.$('#prime-input');
             this.render();
         },
@@ -399,10 +402,37 @@ $(function() {
             this.input.val('');
         },
 
+        channelList: [],
+        // Request list of all channels on the server
         listChannels: function(e) {
             e.preventDefault();
             $('#channel-list').animate({top: 0});
+
+            // Initialize slickgrid
+            // binds directly to allChannels.models as data source
+            var columns = [
+                {id: 'name', field: 'name', name: 'Channel Name'},
+                {id: 'userCount', field: 'userCount', name: 'Users'},
+                {id: 'topic', field: 'topic', name: 'Topic'}
+            ];
+            var options = {
+                enableColumnReorder: false
+            };
+
+            window.grid = new Slick.Grid('#channel-list', this.channelList, columns, options);
+            $('#channel-list').show();
+
+            allChannels.reset();
             socket.emit('list');
+        },
+
+        // Add to channel list
+        populateList: function(channel) {
+            this.channelList.push({
+                name: channel.get('name'),
+                userCount: channel.get('userCount'),
+                topic: channel.get('topic')
+            });
         },
 
         render: function() {
@@ -587,10 +617,14 @@ $(function() {
         }
     });
 
-    socket.on('channellist_item', function(info) {
-        // console.log(info);
+    socket.on('channellist_item', function(data) {
+        allChannels.add({
+            name: data.channel.name,
+            userCount: data.channel.users,
+            topic: data.channel.topic
+        });
     })
-    
+
     socket.on('error', function(data) {
         console.log(data.message);
         frame = frames.getActive();

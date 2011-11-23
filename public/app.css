@@ -55,19 +55,27 @@ header {
 
 #channel-list {
     position: absolute;
-    height: 300px;
-    width: 600px;
+    height: 400px;
+    width: 800px;
     margin-left: -300px;
     left: 50%;
-    top: -300px;
-    background-color: gray;
+    top: -401px;
+    background-color: white;
     z-index: 15;
+    border: 1px solid gray;
 }
 
+/*
 #channel-list .channels {
+    color: #444;
+    font-size: 14px;
+    background-color: white;
     padding: 5px;
+    margin: 2px;
+    height: 286px;
     overflow: auto;
 }
+*/
 
 #output {
     font-size: 14px;
