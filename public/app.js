@@ -340,7 +340,7 @@ $(function() {
 
         initialize: function() {
             frames.bind('add', this.addTab, this);
-            allChannels.bind('add', this.populateList, this);
+            allChannels.bind('add', this.updateChannelList, this);
             this.input = this.$('#prime-input');
             this.render();
         },
@@ -411,28 +411,72 @@ $(function() {
             // Initialize slickgrid
             // binds directly to allChannels.models as data source
             var columns = [
-                {id: 'name', field: 'name', name: 'Channel Name'},
-                {id: 'userCount', field: 'userCount', name: 'Users'},
-                {id: 'topic', field: 'topic', name: 'Topic'}
+                {
+                    id: 'name', field: 'name', name: 'Channel Name',
+                    width: 20, sortable: true
+                },
+                {
+                    id: 'userCount', field: 'userCount', name: 'Users',
+                    width: 10, sortable: true
+                },
+                {
+                    id: 'topic', field: 'topic', name: 'Topic',
+                    width: 80
+                }
             ];
             var options = {
-                enableColumnReorder: false
+                enableColumnReorder: false,
+                forceFitColumns: true
             };
 
-            window.grid = new Slick.Grid('#channel-list', this.channelList, columns, options);
+            window.irc.grid = new Slick.Grid('#channel-list', this.channelList, columns, options);
             $('#channel-list').show();
+
+            // Sort grid results
+            var self = this;
+            irc.grid.onSort.subscribe(function(e, args) {
+                var field = args.sortCol.field;
+
+                self.channelList.sort(function(a, b) {
+                    var result;
+                    if (field === 'userCount') {
+                        // numeric sort
+                        result = a[field] - b[field];
+                    } else {
+                        // string sort
+                        if (a[field] > b[field]) result = 1;
+                        else if (a[field] < b[field]) result = -1;
+                        else result = 0;
+                    }
+                    
+                    return args.sortAsc ? result : -result;
+                });
+
+                irc.grid.setData(self.channelList);
+                irc.grid.updateRowCount();
+                irc.grid.render();
+                
+            });
 
             allChannels.reset();
             socket.emit('list');
         },
 
+        // Throttled update of SlickGrid
+        gridRefresh: _.throttle(function() {
+            irc.grid.updateRowCount();
+            irc.grid.render();
+        }, 250),
+
         // Add to channel list
-        populateList: function(channel) {
+        updateChannelList: function(channel) {
             this.channelList.push({
                 name: channel.get('name'),
                 userCount: channel.get('userCount'),
                 topic: channel.get('topic')
             });
+
+            this.gridRefresh();
         },
 
         render: function() {

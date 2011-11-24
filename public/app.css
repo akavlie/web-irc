@@ -57,9 +57,9 @@ header {
     position: absolute;
     height: 400px;
     width: 800px;
-    margin-left: -300px;
+    margin-left: -401px;
     left: 50%;
-    top: -401px;
+    top: -402px;
     background-color: white;
     z-index: 15;
     border: 1px solid gray;
