@@ -1,0 +1,14 @@
+{
+  "name": "web-irc",
+  "description": "In-browser IRC client",
+  "author": "Aaron Kavlie",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "2.5.x",
+    "irc": "0.3.x",
+    "socket.io": "0.8.x"
+  },
+  "devDependencies": {
+  },
+  "engine": "node >= 0.4.x"
+}
