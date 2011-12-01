@@ -8,6 +8,9 @@
     "irc": "0.3.x",
     "socket.io": "0.8.x"
   },
+  "bin": {
+    "web-irc": "./server.js"
+  },
   "devDependencies": {
   },
   "engine": "node >= 0.4.x"

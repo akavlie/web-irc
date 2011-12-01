@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var express = require('express'),
     app = express.createServer(),
 	io = require('socket.io').listen(app),
@@ -20,7 +22,7 @@ app.get('/', function(req, res, next) {
     next();
 });
 
-console.log('Express server started on port %s', app.address().port);
+console.log('web-irc started on port %s', app.address().port);
 
 
 // Socket.IO

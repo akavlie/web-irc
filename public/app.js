@@ -552,6 +552,7 @@ $(function() {
     // Nick change event
     socket.on('nick', function(data) {
         // Update my info, if it's me
+        console.log('Nick change', data);
         if (data.oldNick == irc.me.get('nick')) {
             irc.me.set({nick: data.newNick});
         }
