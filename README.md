@@ -43,20 +43,27 @@ Design/UI/UX help also **desperately needed**.
 Installation
 ------------
 
-1. Install node.js ([instructions](https://github.com/joyent/node/wiki/Installation))
-2. Install npm
+1. Assuming you already have node.js & npm, run:
 
-        curl http://npmjs.org/install.sh | sh
+    $ npm install -g web-irc
 
-3. Install dependencies
+2. Launch the web server
 
-        npm install express irc
+    $ web-irc
 
-4. Run server
-        
-        node server.js
+3. Point your browser at `http://localhost:8337/`
 
-5. Point your browser at `http://localhost:8337/`
+Development
+-----------
+
+Replace step 1 above with this:
+
+    $ git clone https://github.com/akavlie/web-irc
+    $ cd web-irc
+    $ npm link
+
+this should install dependencies, and link the git checkout to your global
+node_modules directory.
 
 Rationale
 ---------
