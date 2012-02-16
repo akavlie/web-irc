@@ -1,6 +1,15 @@
 Web-IRC
 =======
 
+Note
+----
+
+I have stopped development on Web-IRC in favor of [Subway](https://github.com/thedjpetersen/subway),
+a joint effort with another githubber. If you are interested in a web-based IRC client, look there.
+
+https://github.com/thedjpetersen/subway
+
+
 ### A web IRC client
 
 The goal for this project is to become the best in-browser IRC client available,
@@ -12,11 +21,6 @@ Martyn Smith's [node-irc](https://github.com/martynsmith/node-irc) on the backen
 and [Backbone.js](http://documentcloud.github.com/backbone/) and
 [jQuery](http://jquery.com/) on the frontend.
 
-Try web-irc
------------
-
-[Give it a spin on Nodester!](http://web-irc.nodester.com/)
-(bug reports welcome.)
 
 Status
 ------
